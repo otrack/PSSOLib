@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+# PSSOLIB stuff
+
+import uuid, sys
+import ConfigParser
+sys.path.append("/home/otrack/ALL/myWork/Implementation/pssolib")
+from pssolib.types import *
+from pssolib.utils import *
+
+parser = ConfigParser.ConfigParser()
+parser.add_section("main")
+parser.set("main","servers","localhost:9160")
+parser.set("main","keyspace","test")
+cfg = Config.create(parser,True)
+
+id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+id2=uuid.uuid4()
+psso_spin = Spinlock(id1)
+
+def spin_pssolib_access():
+    psso_spin.lock()
+    psso_spin.unlock()
+
+# ZK stuff
+
+import uuid, sys
+import zklock, time
+zklock.connect()
+z = zklock.Lock('test')
+
+def spin_zk_access():
+    z.acquire()
+    z.release()
+
+# Evaluation
+
+from threading import Thread
+import timeit
+
+it=1000
+nt=10
+
+def spin_zk_measure():
+    print str(timeit.timeit(spin_zk_access,number=it)/it*1000)+" ms"
+
+def spin_pssolib_measure():
+    print str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)+" ms"
+
+try:
+    
+    start = time.time()
+
+    threads=[]
+    for i in range(0,nt):
+        t = Thread(None,spin_zk_measure(),None,None)
+        threads.append(t)
+    [x.start() for x in threads]
+    [x.join() for x in threads]
+
+    print (time.time() - start)
+
+except Exception as errtxt:
+        print errtxt

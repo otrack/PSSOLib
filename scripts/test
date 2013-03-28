@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+import uuid, os, sys
+import ConfigParser
+
+sys.path.append(os.path.dirname(os.getcwd()))
+print sys.path
+from pssolib.types import *
+from pssolib.utils import *
+
+# Parse arguments and create a config 
+if len(sys.argv) != 3:
+    print "Usage: {0} <host:port> <keyspace>".format(sys.argv[0])
+    sys.exit(1)        
+parser = ConfigParser.ConfigParser()
+parser.add_section("main")
+parser.set("main","servers",sys.argv[1])
+parser.set("main","keyspace",sys.argv[2])
+cfg = Config.create(parser,True)
+
+# Run some tests
+id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+id2=uuid.uuid4()
+
+# s = Splitter(id1)
+# print s.split()
+# print s.split()
+
+# c = Consensus(id1)
+# print c.propose("hello")
+
+# cas = Cas(id2)
+# print cas.compareandswap(None,"hello")
+# print cas.get()
+# print cas.compareandswap(None,"Goodbye")
+# print cas.compareandswap(cas.get(),"Goodbye")
+
+spin = Spinlock(id1)
+while True:
+    spin.lock()
+    print "LOCKED"
+    spin.unlock()
+    print "UNLOCKED"
+
