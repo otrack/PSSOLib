@@ -32,9 +32,9 @@ class Config():
 
         # 1 - read the config parser
 
-        self.SYSM = SystemManager(parser.get("main","servers"))
-        self.KEYSPACE = parser.get("main","keyspace")
         self.SERVERS = parser.get("main","servers").split(",")
+        self.SYSM = SystemManager(self.SERVERS[0])
+        self.KEYSPACE = parser.get("main","keyspace")
 
         # 2 - get or create the keyspace and the column families for each object
 

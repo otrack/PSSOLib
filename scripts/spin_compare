@@ -10,7 +10,7 @@ from pssolib.utils import *
 
 parser = ConfigParser.ConfigParser()
 parser.add_section("main")
-parser.set("main","servers","localhost:9160")
+parser.set("main","servers","192.168.79.19:9160,192.168.79.18:9160,192.168.79.66:9160")
 parser.set("main","keyspace","test")
 cfg = Config.create(parser,True)
 
