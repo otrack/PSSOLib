@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import uuid, sys, os
+import ConfigParser
+sys.path.append(os.path.dirname(os.getcwd()))
+from pssolib.types import *
+from pssolib.utils import *
+import uuid, sys
+import zklock, time
+from multiprocessing import Process
+import timeit
+
+#PSSOLib stuff
+
+parser = ConfigParser.ConfigParser()
+parser.add_section("main")
+parser.set("main","servers",sys.argv[1])
+parser.set("main","keyspace",sys.argv[2])
+cfg = Config.create(parser,False)
+id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+spin = Spinlock(id1)
+
+def spin_pssolib_measure(it):
+    print str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
+
+def spin_pssolib_access():
+    spin.lock()
+    spin.unlock()
+
+# ZK stuff
+
+zklock.connect()
+z = zklock.Lock('test')
+
+def spin_zk_measure(it):
+    print str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
+
+def spin_zk_access():
+    z.acquire()
+    z.release()
+
+# Evaluation
+
+it=1000
+if len(sys.argv) != 3:
+    print "Usage: {0} <host1:port1>,<host2:port2>,...  <keyspace>".format(sys.argv[0])
+    sys.exit(1)        
+
+spin_zk_measure(it)
+

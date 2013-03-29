@@ -34,7 +34,9 @@ class Config():
 
         self.SERVERS = parser.get("main","servers").split(",")
         self.SYSM = SystemManager(self.SERVERS[0])
-        self.KEYSPACE = parser.get("main","keyspace")
+        self.KEYSPACE = parser.get("main","keyspace")        
+        self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
+
 
         # 2 - get or create the keyspace and the column families for each object
 
@@ -57,8 +59,6 @@ class Config():
                                                comparator_type=IntegerType(reversed=True), \
                                                read_consistency_level = ConsistencyLevel.ALL, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
-
-        self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
         self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
         self.SPLITTER.key_validation_class = LexicalUUIDType()
@@ -126,12 +126,12 @@ def uuid_add(u,i):
 # Threads
 ##############################
 
-import thread
+import multiprocessing
 
 # FIXME return a system-wide unique id
 #       use injjection from N*N to N
 def get_thread_ident():
-    return thread.get_ident()
+    return multiprocessing.current_process().pid
 
 
 #############################

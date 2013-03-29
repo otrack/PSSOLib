@@ -1,5 +1,4 @@
-import uuid
-import nanotime
+import uuid, nanotime, time
 
 from pssolib.utils import *
 
@@ -109,7 +108,10 @@ class Spinlock():
         self.cas.compareandswap(None,str(0))
         
     def lock(self):
+        mdelay=0
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
+            mdelay+=0.001 # linear backoff
+            time.sleep(mdelay)
             pass
         # print str(nanotime.now())+" LOCKED" + str(get_thread_ident())
         
