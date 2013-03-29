@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import uuid, sys, os
+import ConfigParser
+sys.path.append(os.path.dirname(os.getcwd()))
+from pssolib.types import *
+from pssolib.utils import *
+import uuid, sys
+import zklock, time
+from multiprocessing import Process
+import timeit
+
+parser = ConfigParser.ConfigParser()
+parser.add_section("main")
+parser.set("main","servers",sys.argv[1])
+parser.set("main","keyspace",sys.argv[2])
+cfg = Config.create(parser,True)
