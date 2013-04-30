@@ -40,9 +40,6 @@ def spin_pssolib_access():
 
 # ZK stuff
 
-zklock.connect()
-z = zklock.Lock('test')
-
 def spin_zk_measure(it):
     print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
 
@@ -57,6 +54,8 @@ def spin_zk_access():
 if sys.argv[1]=="P":
     spin_pssolib_measure(it)
 else:
+    zklock.connect()
+    z = zklock.Lock('test')
     spin_zk_measure(it)
 
 # Closing stdout/err
