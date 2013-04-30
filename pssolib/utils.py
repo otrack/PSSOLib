@@ -45,7 +45,7 @@ class Config():
                 self.SYSM.drop_keyspace(self.KEYSPACE)
             except:
                 pass
-            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': '1'})
+            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': '3'})
             self.SYSM.create_column_family(self. KEYSPACE, 'splitter', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.ALL, \

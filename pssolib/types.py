@@ -44,6 +44,14 @@ class Consensus():
                 # print "No conflict"
                 return u
         else :
+            try:
+                u = self.CONSENSUS.get(self.key,columns=['v'])['v']
+                try:
+                    self.CONSENSUS.get(self.key,columns=['b'])
+                except NotFoundException:
+                    return u
+            except NotFoundException:
+                pass
             # print "I lose "+str(s.key)
             self.CONSENSUS.insert(self.key,{'b':1})
             # print "Conflict added"
@@ -110,7 +118,9 @@ class Spinlock():
     def lock(self):
         mdelay=0
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
-            mdelay+=0.001 # linear backoff
+            if mdelay==0:
+                mdelay=0.001
+            mdelay=mdelay*2 # exp backoff
             time.sleep(mdelay)
             pass
         # print str(nanotime.now())+" LOCKED" + str(get_thread_ident())

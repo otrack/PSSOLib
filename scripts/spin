@@ -9,23 +9,34 @@ import uuid, sys
 import zklock, time
 from multiprocessing import Process
 import timeit
+import time
 
+if len(sys.argv) != 7:
+    print "Usage: {0} <P|Z> <host1:port1>,<host2:port2>,...  <keyspace> <#it> <in_nap> <out_nap>".format(sys.argv[0])
+    sys.exit(1)
+
+it=int(sys.argv[4])
+in_nap=int(sys.argv[5])
+out_nap=int(sys.argv[6])
+    
 #PSSOLib stuff
 
 parser = ConfigParser.ConfigParser()
 parser.add_section("main")
-parser.set("main","servers",sys.argv[1])
-parser.set("main","keyspace",sys.argv[2])
+parser.set("main","servers",sys.argv[2])
+parser.set("main","keyspace",sys.argv[3])
 cfg = Config.create(parser,False)
 id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
 spin = Spinlock(id1)
 
 def spin_pssolib_measure(it):
-    print str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
+    print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
 
 def spin_pssolib_access():
     spin.lock()
+    time.sleep(in_nap*0.001)
     spin.unlock()
+    time.sleep(out_nap*0.001)
 
 # ZK stuff
 
@@ -33,18 +44,28 @@ zklock.connect()
 z = zklock.Lock('test')
 
 def spin_zk_measure(it):
-    print str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
+    print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
 
 def spin_zk_access():
     z.acquire()
+    time.sleep(in_nap*0.001)
     z.release()
+    time.sleep(out_nap*0.001)
 
 # Evaluation
 
-it=1000
-if len(sys.argv) != 3:
-    print "Usage: {0} <host1:port1>,<host2:port2>,...  <keyspace>".format(sys.argv[0])
-    sys.exit(1)        
+if sys.argv[1]=="P":
+    spin_pssolib_measure(it)
+else:
+    spin_zk_measure(it)
 
-spin_zk_measure(it)
+# Closing stdout/err
 
+try:
+    sys.stdout.close()
+except:
+    pass
+try:
+    sys.stderr.close()
+except:
+    pass
