@@ -18,16 +18,24 @@ if len(sys.argv) != 7:
 it=int(sys.argv[4])
 in_nap=int(sys.argv[5])
 out_nap=int(sys.argv[6])
+
+# Evaluation
+
+if sys.argv[1]=="P":
+    parser = ConfigParser.ConfigParser()
+    parser.add_section("main")
+    parser.set("main","servers",sys.argv[2])
+    parser.set("main","keyspace",sys.argv[3])
+    cfg = Config.create(parser,False)
+    id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+    spin = Spinlock(id1)
+    spin_pssolib_measure(it)
+else:
+    zklock.connect()
+    z = zklock.Lock('test')
+    spin_zk_measure(it)
     
 #PSSOLib stuff
-
-parser = ConfigParser.ConfigParser()
-parser.add_section("main")
-parser.set("main","servers",sys.argv[2])
-parser.set("main","keyspace",sys.argv[3])
-cfg = Config.create(parser,False)
-id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
-spin = Spinlock(id1)
 
 def spin_pssolib_measure(it):
     print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
@@ -48,15 +56,6 @@ def spin_zk_access():
     time.sleep(in_nap*0.001)
     z.release()
     time.sleep(out_nap*0.001)
-
-# Evaluation
-
-if sys.argv[1]=="P":
-    spin_pssolib_measure(it)
-else:
-    zklock.connect()
-    z = zklock.Lock('test')
-    spin_zk_measure(it)
 
 # Closing stdout/err
 
