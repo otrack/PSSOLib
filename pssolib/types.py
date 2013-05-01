@@ -33,6 +33,16 @@ class Consensus():
     def propose(self,u):
         s = Splitter(self.key)
         isWin = s.split()
+        # Check that the result does not exist yet.
+        try:
+            u = self.CONSENSUS.get(self.key,columns=['v'])['v']
+            try:
+                self.CONSENSUS.get(self.key,columns=['b'])
+            except NotFoundException:
+                return u
+        except NotFoundException:
+            pass
+
         if isWin==True :
             # print "I win "+str(s.key)
             self.CONSENSUS.insert(self.key,{'v':u})
@@ -44,6 +54,7 @@ class Consensus():
                 # print "No conflict"
                 return u
         else :
+            # Again, check that the result does not exist yet.
             try:
                 u = self.CONSENSUS.get(self.key,columns=['v'])['v']
                 try:
