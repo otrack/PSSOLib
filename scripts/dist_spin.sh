@@ -12,8 +12,6 @@ then
 fi;
 
 # 1 - Clean-up
-./clean $2 $3
-wait
 rm -Rf ${EXP_TMP_DIR}/*
 if [ ! -e ${EXP_TMP_DIR} ]
 then
