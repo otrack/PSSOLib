@@ -20,7 +20,7 @@ fi;
 
 # 2 - Launch experiments
 
-client_min=1
+client_min=10
 client_max=10
 client_incr=1
 
@@ -45,6 +45,7 @@ do
 	    if [[ $1 == 'P' ]]
 	    then
 		./clean $2 $3
+		wait
 	    fi
 
             # 2.1 - Run an  experiment
