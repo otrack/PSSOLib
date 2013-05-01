@@ -49,7 +49,7 @@ if sys.argv[1]=="P":
     parser.add_section("main")
     parser.set("main","servers",sys.argv[2])
     parser.set("main","keyspace",sys.argv[3])
-    cfg = Config.create(parser,True)
+    cfg = Config.create(parser,False)
     id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
     spin = Spinlock(id1)
     spin_pssolib_measure(it)

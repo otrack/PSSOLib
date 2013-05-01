@@ -40,6 +40,13 @@ do
 
 	for out_nap in `seq ${out_nap_min} ${out_nap_incr} ${out_nap_max}`
 	do
+	    
+	    # 2.0 - Clean-up
+	    if [[ $1 == 'P' ]]
+	    then
+		echo "cleaning"
+		./clean $2 $3
+	    fi
 
             # 2.1 - Run an  experiment
 	    for i in `seq 1 ${nclients}` 
