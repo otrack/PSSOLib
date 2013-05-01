@@ -15,25 +15,10 @@ if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <host1:port1>,<host2:port2>,...  <keyspace> <#it> <in_nap> <out_nap>".format(sys.argv[0])
     sys.exit(1)
 
+
 it=int(sys.argv[4])
 in_nap=int(sys.argv[5])
 out_nap=int(sys.argv[6])
-
-# Evaluation
-
-if sys.argv[1]=="P":
-    parser = ConfigParser.ConfigParser()
-    parser.add_section("main")
-    parser.set("main","servers",sys.argv[2])
-    parser.set("main","keyspace",sys.argv[3])
-    cfg = Config.create(parser,True)
-    id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
-    spin = Spinlock(id1)
-    spin_pssolib_measure(it)
-else:
-    zklock.connect()
-    z = zklock.Lock('test')
-    spin_zk_measure(it)
     
 #PSSOLib stuff
 
@@ -56,6 +41,22 @@ def spin_zk_access():
     time.sleep(in_nap*0.001)
     z.release()
     time.sleep(out_nap*0.001)
+
+# Evaluation
+
+if sys.argv[1]=="P":
+    parser = ConfigParser.ConfigParser()
+    parser.add_section("main")
+    parser.set("main","servers",sys.argv[2])
+    parser.set("main","keyspace",sys.argv[3])
+    cfg = Config.create(parser,True)
+    id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+    spin = Spinlock(id1)
+    spin_pssolib_measure(it)
+else:
+    zklock.connect(sys.argv[2]+":2181")
+    z = zklock.Lock(sys.argv[3])
+    spin_zk_measure(it)
 
 # Closing stdout/err
 
