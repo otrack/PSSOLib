@@ -5,11 +5,9 @@ import ConfigParser
 sys.path.append(os.path.dirname(os.getcwd()))
 from pssolib.types import *
 from pssolib.utils import *
-import uuid, sys
-import zklock, time
+import uuid, sys, time, timeit
 from multiprocessing import Process
-import timeit
-import time
+import zklock
 
 if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <host1:port1>,<host2:port2>,...  <keyspace> <#it> <in_nap> <out_nap>".format(sys.argv[0])
@@ -42,7 +40,7 @@ def spin_zk_access():
     z.release()
     time.sleep(out_nap*0.001)
 
-# Evaluation
+# Configuration & Evaluation
 
 if sys.argv[1]=="P":
     parser = ConfigParser.ConfigParser()
