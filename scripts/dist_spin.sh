@@ -44,7 +44,6 @@ do
 	    # 2.0 - Clean-up
 	    if [[ $1 == 'P' ]]
 	    then
-		echo "cleaning"
 		./clean $2 $3
 	    fi
 
