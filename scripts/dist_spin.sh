@@ -32,7 +32,7 @@ in_nap_min=1
 in_nap_max=1
 in_nap_incr=1
 
-out_nap_min=10
+out_nap_min=0
 out_nap_max=10
 out_nap_incr=10
 
