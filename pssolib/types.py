@@ -22,7 +22,7 @@ class Splitter():
         try:
             x = self.SPLITTER.get(self.key,columns=['x'])
         except NotFoundException:
-            return false        
+            return False        
         if x['x']!=self.pid:
             return False
         return True
