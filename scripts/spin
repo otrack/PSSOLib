@@ -10,7 +10,7 @@ from multiprocessing import Process
 import zklock
 
 if len(sys.argv) != 7:
-    print "Usage: {0} <P|Z> <host1:port1>,<host2:port2>,...  <keyspace> <#it> <in_nap> <out_nap>".format(sys.argv[0])
+    print "Usage: {0} <P|Z> <host1:port1>,<host2:port2>,...  <spinlockid> <#it> <in_nap> <out_nap>".format(sys.argv[0])
     sys.exit(1)
 
 
@@ -46,9 +46,9 @@ if sys.argv[1]=="P":
     parser = ConfigParser.ConfigParser()
     parser.add_section("main")
     parser.set("main","servers",sys.argv[2])
-    parser.set("main","keyspace",sys.argv[3])
+    parser.set("main","keyspace","spinlock")
     cfg = Config.create(parser,False)
-    id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
+    id1=uuid.UUID(sys.argv[3])
     spin = Spinlock(id1)
     spin_pssolib_measure(it)
 else:

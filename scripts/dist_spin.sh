@@ -9,9 +9,9 @@ function absolute(){
 }
 
 # 0 - Usage 
-if [ $# -ne 3 ]
+if [ $# -ne 2 ]
 then
-    echo "Usage: $0 <P|Z> <host1:port1>,<host2:port2>,...  <keyspace>"
+    echo "Usage: $0 <P|Z> <host1:port1>,<host2:port2>,..."
     exit 1
 fi;
 
@@ -24,7 +24,7 @@ fi;
 
 # 2 - Launch experiments
 
-client_min=1
+client_min=5
 client_max=5
 client_incr=1
 
@@ -33,8 +33,8 @@ in_nap_max=1
 in_nap_incr=1
 
 out_nap_min=0
-out_nap_max=10
-out_nap_incr=10
+out_nap_max=50
+out_nap_incr=5
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
@@ -44,18 +44,12 @@ do
 
 	for out_nap in `seq ${out_nap_min} ${out_nap_incr} ${out_nap_max}`
 	do
-	    
-	    # 2.0 - Clean-up
-	    if [[ $1 == 'P' ]]
-	    then
-	    	./clean $2 $3
-	    	wait
-	    fi
 
             # 2.1 - Run an  experiment
+	    spinlockid=`uuidgen`
 	    for i in `seq 1 ${nclients}` 
 	    do
-		./spin $1 $2 $3 ${N_IT} ${in_nap} ${out_nap} &> ${EXP_TMP_DIR}/$i &
+		./spin $1 $2 ${spinlockid} ${N_IT} ${in_nap} ${out_nap} &> ${EXP_TMP_DIR}/$i &
 	    done
 	    wait 
 

@@ -36,10 +36,9 @@ class Config():
         self.SYSM = SystemManager(self.SERVERS[0])
         self.KEYSPACE = parser.get("main","keyspace")        
 
-
         # 2 - get or create the keyspace and the column families for each object
 
-        if init:
+        if init or ((self.KEYSPACE in self.SYSM.list_keyspaces())!=True) :
             try:
                 self.SYSM.drop_keyspace(self.KEYSPACE)
             except:
