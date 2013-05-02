@@ -49,16 +49,16 @@ class Config():
             self.SYSM.create_column_family(self. KEYSPACE, 'splitter', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.QUORUM)
+                                               write_consistency_level = ConsistencyLevel.ALL)
             self.SYSM.create_column_family(self. KEYSPACE, 'consensus', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.QUORUM)
+                                               write_consistency_level = ConsistencyLevel.ALL)
             self.SYSM.create_column_family(self. KEYSPACE, 'cas', \
                                                super=False, \
                                                comparator_type=IntegerType(reversed=True), \
                                                read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.QUORUM)
+                                               write_consistency_level = ConsistencyLevel.ALL)
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
