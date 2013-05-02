@@ -24,17 +24,26 @@ fi;
 
 # 2 - Launch experiments
 
-client_min=5
-client_max=5
+client_min=3
+client_max=3
 client_incr=1
 
 in_nap_min=1
 in_nap_max=1
 in_nap_incr=1
 
-out_nap_min=5
-out_nap_max=50
-out_nap_incr=5
+out_nap_min=3
+out_nap_max=60
+out_nap_incr=3
+
+# 2.0 - Clean-up
+if [[ $1 == 'P' ]]
+then
+    ./clean $2 $3
+    wait
+    sleep 5
+fi
+
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
