@@ -134,12 +134,12 @@ class Spinlock():
             mdelay=mdelay*2 # exp backoff
             time.sleep(mdelay)
             pass
-        # print str(nanotime.now())+" LOCKED" + str(get_thread_ident())
+        print str(nanotime.now())+" LOCKED" + str(get_thread_ident())
         
     def unlock(self):
          r = self.cas.compareandswap(str(get_thread_ident()),str(0))
          assert r == True
-         # print str(nanotime.now())+" UNLOCKED" + str(get_thread_ident())
+         print str(nanotime.now())+" UNLOCKED" + str(get_thread_ident())
 
 class Map():
 
