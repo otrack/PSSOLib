@@ -138,7 +138,7 @@ class Spinlock():
         
     def unlock(self):
          r = self.cas.compareandswap(str(get_thread_ident()),str(0))
-         assert r == True
+         # assert r == True
          print str(nanotime.now())+" UNLOCKED" + str(get_thread_ident())
 
 class Map():
