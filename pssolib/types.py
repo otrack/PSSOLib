@@ -19,10 +19,7 @@ class Splitter():
             pass
 
         self.SPLITTER.insert(self.key,{'y':self.pid})
-        try:
-            x = self.SPLITTER.get(self.key,columns=['x'])
-        except NotFoundException:
-            return False        
+        x = self.SPLITTER.get(self.key,columns=['x'])
         if x['x']!=self.pid:
             return False
         return True
@@ -130,21 +127,21 @@ class Spinlock():
         self.cas.compareandswap(None,str(0))
         
     def lock(self):
-        mdelay=0
-        maxdelay=0.010
+        # mdelay=0
+        # maxdelay=0.010
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
-            if mdelay==0:
-                mdelay=0.001
-            mdelay=mdelay+0.001 # lin backoff
-            if mdelay>maxdelay:
-                mdelay=maxdelay # with a cap
-            time.sleep(mdelay)
+            # if mdelay==0:
+            #     mdelay=0.001
+            # mdelay=mdelay+0.001 # lin backoff
+            # if mdelay>maxdelay:
+            #     mdelay=maxdelay # with a cap
+            # time.sleep(mdelay)
             pass
         print str(nanotime.now())+" LOCKED" + str(get_thread_ident())
         
     def unlock(self):
          r = self.cas.compareandswap(str(get_thread_ident()),str(0))
-         # assert r == True
+         assert r == True
          print str(nanotime.now())+" UNLOCKED" + str(get_thread_ident())
 
 class Map():
