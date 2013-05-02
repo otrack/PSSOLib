@@ -46,11 +46,11 @@ do
 	do
 	    
 	    # 2.0 - Clean-up
-	    # if [[ $1 == 'P' ]]
-	    # then
-	    # 	./clean $2 $3
-	    # 	wait
-	    # fi
+	    if [[ $1 == 'P' ]]
+	    then
+	    	./clean $2 $3
+	    	wait
+	    fi
 
             # 2.1 - Run an  experiment
 	    for i in `seq 1 ${nclients}` 

@@ -127,12 +127,12 @@ class Spinlock():
         self.cas.compareandswap(None,str(0))
         
     def lock(self):
-        mdelay=0
+        # mdelay=0
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
-            if mdelay==0:
-                mdelay=0.001
-            mdelay=mdelay*2 # exp backoff
-            time.sleep(mdelay)
+            # if mdelay==0:
+            #     mdelay=0.001
+            # mdelay=mdelay*2 # exp backoff
+            # time.sleep(mdelay)
             pass
         print str(nanotime.now())+" LOCKED" + str(get_thread_ident())
         
