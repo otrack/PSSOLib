@@ -20,7 +20,13 @@ rm -Rf ${EXP_TMP_DIR}/*
 if [ ! -e ${EXP_TMP_DIR} ]
 then
     mkdir ${EXP_TMP_DIR}
-fi;
+fi
+if [[ $1 == 'P' ]]
+then
+    ./clean $2 "spinlock"
+    wait
+    sleep 5
+fi
 
 # 2 - Launch experiments
 
@@ -33,17 +39,8 @@ in_nap_max=1
 in_nap_incr=1
 
 out_nap_min=3
-out_nap_max=60
+out_nap_max=30
 out_nap_incr=3
-
-# 2.0 - Clean-up
-if [[ $1 == 'P' ]]
-then
-    ./clean $2 $3
-    wait
-    sleep 5
-fi
-
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
