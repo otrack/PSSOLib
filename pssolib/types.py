@@ -82,9 +82,10 @@ class Consensus():
 
 class Cas():
 
-    def __init__(self,key):
+    def __init__(self,key,init):
         self.key = key
         self.CAS = Config.get().CAS
+        self.compareandswap(None,init)
  
     def compareandswap(self,u,v):
         try:
@@ -128,8 +129,7 @@ class Spinlock():
     def __init__(self,lockid):
         self.pid = get_thread_ident()
         self.lockid = lockid
-        self.cas = Cas(self.lockid)
-        self.cas.compareandswap(None,str(0))
+        self.cas = Cas(self.lockid,str(0))
         
     def lock(self):
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
