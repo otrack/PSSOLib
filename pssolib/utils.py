@@ -49,6 +49,10 @@ class Config():
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
+            self.SYSM.create_column_family(self. KEYSPACE, 'wac', \
+                                               super=False, \
+                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               write_consistency_level = ConsistencyLevel.QUORUM)
             self.SYSM.create_column_family(self. KEYSPACE, 'consensus', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
@@ -65,12 +69,17 @@ class Config():
         self.SPLITTER.key_validation_class = LexicalUUIDType()
         self.SPLITTER.column_name_class = AsciiType()
         self.SPLITTER.column_validators['x'] = IntegerType() # PID
-        self.SPLITTER.column_validators['y'] = IntegerType() # PID
+        self.SPLITTER.column_validators['y'] = BooleanType() # boolean
+
+        self.WAC = ColumnFamily(self.POOL, 'wac')
+        self.WAC.key_validation_class = LexicalUUIDType()
+        self.WAC.column_name_class = AsciiType() 
+        self.WAC.column_validators['c'] = IntegerType() # Conflict flag
+        # CONSENSUS.column_validators['d'] = BytesType() # Weak adopt-commit value
 
         self.CONSENSUS = ColumnFamily(self.POOL, 'consensus')
         self.CONSENSUS.key_validation_class = LexicalUUIDType()
         self.CONSENSUS.column_name_class = AsciiType() 
-        self.CONSENSUS.column_validators['b'] = IntegerType() # Conflict flag
         # CONSENSUS.column_validators['v'] = BytesType() # Consensus value
 
         self.CAS = ColumnFamily(self.POOL, 'cas')
@@ -132,8 +141,7 @@ import multiprocessing
 # FIXME return a system-wide unique id
 #       use injjection from N*N to N
 def get_thread_ident():
-    return multiprocessing.current_process().pid
-
+    return multiprocessing.current_process().pid        
 
 #############################
 # Files

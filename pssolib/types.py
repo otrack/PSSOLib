@@ -12,75 +12,80 @@ class Splitter():
     def split(self):
         self.SPLITTER.insert(self.key,{'x':self.pid})
         try:
-            y = self.SPLITTER.get(self.key,columns=['y'])
-            if y!=self.pid:
-                return False
+            self.SPLITTER.get(self.key,columns=['y'])
+            return False
         except NotFoundException:
             pass
 
-        self.SPLITTER.insert(self.key,{'y':self.pid})
+        self.SPLITTER.insert(self.key,{'y':True})
         x = self.SPLITTER.get(self.key,columns=['x'])
         if x['x']!=self.pid:
             return False
         return True
 
+class WeakAdoptCommit():
+
+    def __init__(self,key):
+        self.key = key
+        self.WAC = Config.get().WAC
+
+    def adoptCommit(self,u):
+
+        s = Splitter(self.key)
+        isWin = s.split()
+
+        if isWin==True :
+            self.WAC.insert(self.key,{'d':u})
+            try:
+                self.WAC.get(self.key,columns=['c'])
+            except NotFoundException:
+                return (u,'COMMIT')
+
+        else : 
+
+            # Check that the result does not exist first.
+            try:
+                u = self.WAC.get(self.key,columns=['d'])['d']
+                try:
+                    self.WAC.get(self.key,columns=['c'])
+                except NotFoundException:
+                    return (u,'COMMIT')
+            except NotFoundException:
+                pass
+
+            self.WAC.insert(self.key,{'c':1})
+            try:
+                u = self.WAC.get(self.key,columns=['d'])['d']
+            except NotFoundException:
+                pass
+
+        return (u,'ADOPT')
+        
 class Consensus():
 
     def __init__(self,key):
         self.key = key
+        self.pid = get_thread_ident()
         self.CONSENSUS = Config.get().CONSENSUS
+        self.R = NaturalRacing()
 
     def propose(self,u):
-        s = Splitter(self.key)
-        isWin = s.split()
-        # Check that the result does not exist yet.
-        try:
-            u = self.CONSENSUS.get(self.key,columns=['v'])['v']
+        while True:
             try:
-                self.CONSENSUS.get(self.key,columns=['b'])
-            except NotFoundException:
-                return u
-        except NotFoundException:
-            pass
-
-        if isWin==True :
-            # print "I win "+str(s.key)
-            self.CONSENSUS.insert(self.key,{'v':u})
-            # print "Value added"
-            try:
-                self.CONSENSUS.get(self.key,columns=['b'])
-                # print "Conflict seen"
-            except NotFoundException:
-                # print "No conflict"
-                return u
-        else :
-            # Again, check that the result does not exist yet.
-            try:
-                u = self.CONSENSUS.get(self.key,columns=['v'])['v']
-                try:
-                    self.CONSENSUS.get(self.key,columns=['b'])
-                except NotFoundException:
-                    return u
+                return self.CONSENSUS.get(self.key,columns=['d'])['d']
             except NotFoundException:
                 pass
-            # print "I lose "+str(s.key)
-            self.CONSENSUS.insert(self.key,{'b':1})
-            # print "Conflict added"
-            try:
-                u = self.CONSENSUS.get(self.key,columns=['v'])['v']
-                # print "Value seen"
-            except NotFoundException:
-                pass
-                # print "No Value"
-        nested=Consensus(uuid_incr(self.key))
-        return nested.propose(u)
+            r = WeakAdoptCommit(uuid_add(self.key,self.R.enter(self.pid))).adoptCommit(u)
+            u = r[0]
+            if r[1] == 'COMMIT':
+                self.CONSENSUS.insert(self.key,{'d':u})
 
 class Cas():
 
     def __init__(self,key):
         self.key = key
         self.CAS = Config.get().CAS
-
+ 
     def compareandswap(self,u,v):
         try:
             #FIXME
@@ -164,4 +169,21 @@ class Map():
     def valueset(self):
         return self.toOrderedDict().valueset()
 
+#############################
+# Racing
+##############################
+
+class Racing():
+
+    def enter(pid):
+        raise Error("Uncorrect racing definition")
+
+class NaturalRacing(Racing):
+
+    def __init__(self):
+        self.i = 0
+
+    def enter(self,pid):
+        self.i = self.i + 1
+        return self.i
 
