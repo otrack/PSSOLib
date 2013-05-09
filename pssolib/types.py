@@ -18,7 +18,10 @@ class Splitter():
             pass
 
         self.SPLITTER.insert(self.key,{'y':True})
-        x = self.SPLITTER.get(self.key,columns=['x'])
+        try:
+            x = self.SPLITTER.get(self.key,columns=['x'])
+        except NotFoundException:
+            return False
         if x['x']!=self.pid:
             return False
         return True
