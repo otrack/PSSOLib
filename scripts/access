@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import uuid, sys, os, random
+import uuid, sys, os, random, datetime
 import ConfigParser
 sys.path.append(os.path.dirname(os.getcwd()))
 from pssolib.types import *
@@ -33,8 +33,10 @@ def spin_pssolib_access():
     time.sleep(nap*0.001)
 
 def cas_pssolib_access():
-    r = cas.compareandswap(str(random.randint(0, 10)),str(random.randint(0, 10)))
-    print r
+    a = str(random.randint(0, 10))
+    b = str(random.randint(0, 10))
+    r = cas.compareandswap(a,b)
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
     time.sleep(nap*0.001)
 
 def cons_pssolib_access():

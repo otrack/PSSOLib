@@ -1,6 +1,5 @@
 import uuid, nanotime, time, md5, uuid
 
-
 from pssolib.utils import *
 
 class Splitter():
@@ -44,15 +43,15 @@ class WeakAdoptCommit():
 
         else : 
 
-            # Check that the result does not exist first.
-            try:
-                u = self.WAC.get(self.key,columns=['d'])['d']
-                try:
-                    self.WAC.get(self.key,columns=['c'])
-                except NotFoundException:
-                    return (u,'COMMIT')
-            except NotFoundException:
-                pass
+            # # Check that the result does not exist first.
+            # try:
+            #     u = self.WAC.get(self.key,columns=['d'])['d']
+            #     try:
+            #         self.WAC.get(self.key,columns=['c'])
+            #     except NotFoundException:
+            #         return (u,'COMMIT')
+            # except NotFoundException:
+            #     pass
 
             self.WAC.insert(self.key,{'c':1})
             try:
@@ -74,11 +73,11 @@ class Consensus():
         self.R = NaturalRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
 
     def propose(self,u):
-        print "proposing "+u+" in "+ "Consensus#"+str(self.key)
+        # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
         while True:
             try:
                 d=self.CONSENSUS.get(self.key,columns=['d'])['d']
-                print "decision "+d+" in "+ "Consensus#"+str(self.key)
+
                 return d
             except NotFoundException:
                 pass
@@ -86,11 +85,12 @@ class Consensus():
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
+                print str(self.key)+" decision "+u
 
     def decision(self):
         try:
             d = self.CONSENSUS.get(self.key,columns=['d'])['d']
-            print "decision "+d+" in "+ "Consensus#"+str(self.key)
+            # print "decision "+d+" in "+ "Consensus#"+str(self.key)
             return d
         except NotFoundException:
             return None
@@ -115,13 +115,13 @@ class Cas():
             if self.C.decision() == None:
 
                 if self.last[0] != u:
-                    print "failed with "+str(self.last)+" "+u+";"+v
+                    # print "failed with "+str(self.last)+" "+u+";"+v
                     return False;
             
                 self.last = self.C.propose(v+":"+str(self.pid)).rsplit(":",1)
             
                 if (self.last[0] != v) or (self.last[1] != str(self.pid)):
-                    print "failed after propose with "+str(self.last)+" "+u+";"+v
+                    # print "failed after propose with "+str(self.last)+" "+u+";"+v
                     return False
                     
                 return True
