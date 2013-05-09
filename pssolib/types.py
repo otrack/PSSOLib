@@ -130,8 +130,6 @@ class Cas():
         
             self.C = self.R.enter(self.pid)
 
-            
-
     # def get(self):
     #     C = self.R.enter(self.pid)
     #     if C.decision() != None:
@@ -146,8 +144,18 @@ class Spinlock():
         self.cas = Cas(self.lockid,str(0))
         
     def lock(self):
+        mdelay=0
+        maxdelay=0.016
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
+            if mdelay==0:
+                mdelay=0.001
+            else:
+                mdelay=mdelay*2 # exp backoff
+            if mdelay>maxdelay:
+                mdelay=maxdelay # with a cap
+                time.sleep(mdelay)
             pass
+        mdelay=0
         print str(nanotime.now())+" LOCKED " + str(get_thread_ident())
         
     def unlock(self):
