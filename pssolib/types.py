@@ -18,9 +18,9 @@ class Splitter():
             pass
 
         self.SPLITTER.insert(self.key,{'y':True})
-        try:
+        try: 
             x = self.SPLITTER.get(self.key,columns=['x'])
-        except NotFoundException:
+        except NotFoundException: # FIXME how could this happen .....
             return False
         if x['x']!=self.pid:
             return False
@@ -103,7 +103,6 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.CAS = Config.get().CAS
         self.R = NaturalRacing(key,"Consensus")
         self.C = None
         self.last = [init,str(self.pid)]

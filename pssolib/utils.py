@@ -45,25 +45,20 @@ class Config():
                 pass
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': '3'})
 
-            self.SYSM.create_column_family(self. KEYSPACE, 'map', \
+            self.SYSM.create_column_family(self.KEYSPACE, 'map', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
-            self.SYSM.create_column_family(self. KEYSPACE, 'splitter', \
+            self.SYSM.create_column_family(self.KEYSPACE, 'splitter', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
-            self.SYSM.create_column_family(self. KEYSPACE, 'wac', \
+            self.SYSM.create_column_family(self.KEYSPACE, 'wac', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
-            self.SYSM.create_column_family(self. KEYSPACE, 'consensus', \
+            self.SYSM.create_column_family(self.KEYSPACE, 'consensus', \
                                                super=False, \
-                                               read_consistency_level = ConsistencyLevel.QUORUM, \
-                                               write_consistency_level = ConsistencyLevel.QUORUM)
-            self.SYSM.create_column_family(self. KEYSPACE, 'cas', \
-                                               super=False, \
-                                               comparator_type=IntegerType(reversed=True), \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
 
@@ -89,10 +84,6 @@ class Config():
         self.CONSENSUS.key_validation_class = LexicalUUIDType()
         self.CONSENSUS.column_name_class = AsciiType() 
         # CONSENSUS.column_validators['v'] = BytesType() # Consensus value
-
-        self.CAS = ColumnFamily(self.POOL, 'cas')
-        self.CAS.key_validation_class = LexicalUUIDType()
-        self.CAS.column_name_class = IntegerType()
         
 #############################
 # UUID 
