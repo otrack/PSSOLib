@@ -24,6 +24,8 @@ def pssolib_measure(obj,it):
         print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
     if obj == 'cas':
         print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_pssolib_access,number=it)/it*1000)
+    if obj == 'cons':
+        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cons_pssolib_access,number=it)/it*1000)
 
 def spin_pssolib_access():
     spin.lock()
@@ -33,6 +35,9 @@ def spin_pssolib_access():
 def cas_pssolib_access():
     r = cas.compareandswap(str(0),str(0))
     time.sleep(nap*0.001)
+
+def cons_pssolib_access():
+    r = cons.propose(str(get_thread_ident()))
 
 # ZK stuff
 
@@ -64,6 +69,7 @@ if sys.argv[1]=="P":
     id1=uuid.UUID(sys.argv[4])
     spin = Spinlock(id1)
     cas = Cas(id1,0)
+    cons = Consensus(id1)
     pssolib_measure(sys.argv[2],it)
 
 else:

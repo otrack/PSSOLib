@@ -45,6 +45,10 @@ class Config():
                 pass
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': '3'})
 
+            self.SYSM.create_column_family(self. KEYSPACE, 'map', \
+                                               super=False, \
+                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               write_consistency_level = ConsistencyLevel.QUORUM)
             self.SYSM.create_column_family(self. KEYSPACE, 'splitter', \
                                                super=False, \
                                                read_consistency_level = ConsistencyLevel.QUORUM, \
@@ -64,6 +68,10 @@ class Config():
                                                write_consistency_level = ConsistencyLevel.QUORUM)
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
+
+        self.MAP = ColumnFamily(self.POOL, 'map')
+        self.MAP.key_validation_class = LexicalUUIDType()
+        self.MAP.column_name_class = AsciiType()
 
         self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
         self.SPLITTER.key_validation_class = LexicalUUIDType()
@@ -85,8 +93,7 @@ class Config():
         self.CAS = ColumnFamily(self.POOL, 'cas')
         self.CAS.key_validation_class = LexicalUUIDType()
         self.CAS.column_name_class = IntegerType()
-        # self.CAS.column_validators['l'] = CompositeType(LongType(), AsciiType()) # CAS values
-
+        
 #############################
 # UUID 
 ##############################
@@ -96,41 +103,40 @@ import uuid
 
 # Use snowflacke for generating UUID ?
 
+# FIXME
+
 # This function takes as argument an hex and increments it modulo its lenght.
 # The result is a pair where the first element is the incremented element, 
 # and the second one is the carry.
-def hex_incr(h):
+def hex_add(h,i):
     l=len(h)
     if h=="f"*l:
         return [1,"0"*l]
     else:
         # FIXME find a cleaner solution
-        return [0,string.replace(string.replace(hex(int(h,16)+1),"0x",""),"L","").zfill(l)]
+        return [0,string.replace(string.replace(hex(int(h,16)+i),"0x",""),"L","").zfill(l)]
 
-# This function takes as argument a UUID (v1) and increment the nanoseconds 
-# value by 1 . For instance, 550e8400-e29b-41d4-a716-446655440000
-# beciles 550e840ef-e29b-41d4-a717-446655440000.
-def uuid_incr(u):
+# This function adds i to uuid u
+def uuid_add(u,i):
     r=str(u)
     # FIXME find a cleaner solution 
     #       _and_ do not change the value of the M^th byte.
     once=True
-    for p in str(u).split("-")[::-1]:
+    for p in  str(u).split("-")[::-1]:
         if once :
             once=False
             continue
-        q=hex_incr(p)
+        q=hex_add(p,i)
         r=string.replace(r,p,q[1])
         if q[0]==0:
             return uuid.UUID(r)
     return uuid.UUID(r)
 
-# This function adds i to uuid u
-def uuid_add(u,i):
-    for k in range(1,i+1):
-        u=uuid_incr(u)
-    return u
-
+# This function takes as argument a UUID (v1) and increment the nanoseconds 
+# value by 1 . For instance, 550e8400-e29b-41d4-a716-446655440000
+# beciles 550e840ef-e29b-41d4-a717-446655440000.
+def uuid_incr(u):
+    return uuid_add(u,1)
 
 #############################
 # Threads

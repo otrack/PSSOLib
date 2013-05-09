@@ -1,4 +1,5 @@
-import uuid, nanotime, time
+import uuid, nanotime, time, md5, uuid
+
 
 from pssolib.utils import *
 
@@ -67,62 +68,75 @@ class Consensus():
         self.key = key
         self.pid = get_thread_ident()
         self.CONSENSUS = Config.get().CONSENSUS
-        self.R = NaturalRacing()
+        # FIXME
+        m = md5.new()
+        m.update(str(key))
+        self.R = NaturalRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
 
     def propose(self,u):
+        print "proposing "+u+" in "+ "Consensus#"+str(self.key)
         while True:
             try:
-                return self.CONSENSUS.get(self.key,columns=['d'])['d']
+                d=self.CONSENSUS.get(self.key,columns=['d'])['d']
+                print "decision "+d+" in "+ "Consensus#"+str(self.key)
+                return d
             except NotFoundException:
                 pass
-            r = WeakAdoptCommit(uuid_add(self.key,self.R.enter(self.pid))).adoptCommit(u)
+            r = self.R.enter(self.pid).adoptCommit(u)
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
+
+    def decision(self):
+        try:
+            d = self.CONSENSUS.get(self.key,columns=['d'])['d']
+            print "decision "+d+" in "+ "Consensus#"+str(self.key)
+            return d
+        except NotFoundException:
+            return None
 
 class Cas():
 
     def __init__(self,key,init):
         self.key = key
+        self.pid = get_thread_ident()
         self.CAS = Config.get().CAS
-        self.compareandswap(None,init)
+        self.R = NaturalRacing(key,"Consensus")
+        self.C = None
+        self.last = [init,str(self.pid)]
  
     def compareandswap(self,u,v):
-        try:
-            #FIXME
-            # columns = self.CAS.get(self.key, column_count=100000)
-            # largest=max(columns.iterkeys())
-            # if u==columns[largest]:
-            c = self.CAS.get(self.key, column_count=1)
-            (lkey,lval) = c.popitem()
-            if u == lval:
-                return self.doConsensusAndWrite(v,lkey+1)
-            return False
-        except NotFoundException:
-            pass
-        if u == None:
-            return self.doConsensusAndWrite(v,1)
-        else:
-            return False
 
-    def get(self):
-        try:
-            return self.CAS.get(self.key, column_count=1).popitem()[1]
-        except:
-            return None
+        while True:
+
+            if self.C == None:
+                self.C = self.R.enter(self.pid)
+
+            if self.C.decision() == None:
+
+                if self.last[0] != u:
+                    print "failed with "+str(self.last)+" "+u+";"+v
+                    return False;
             
-    def doConsensusAndWrite(self,v,l):
-        k=uuid.uuid5(self.key,str(l))
-        c=Consensus(k)
-        # incorrect, we must propose also our ID !!
-        proposed = v
-        # print "START  "+str(l)
-        decided = c.propose(proposed)
-        # print "OVER "+str(l)+" : "+str(decided) +" "+str(proposed)
-        self.CAS.insert(self.key,{l:decided})
-        if decided == proposed:
-            return True
-        return False
+                self.last = self.C.propose(v+":"+str(self.pid)).rsplit(":",1)
+            
+                if (self.last[0] != v) or (self.last[1] != str(self.pid)):
+                    print "failed after propose with "+str(self.last)+" "+u+";"+v
+                    return False
+                    
+                return True
+        
+            self.last = self.C.decision().rsplit(":",1)
+        
+            self.C = self.R.enter(self.pid)
+
+            
+
+    # def get(self):
+    #     C = self.R.enter(self.pid)
+    #     if C.decision() != None:
+    #         self.last = C.decision().rsplit(":",1)
+    #     return self.last[0]
 
 class Spinlock():
 
@@ -138,9 +152,10 @@ class Spinlock():
         
     def unlock(self):
          r = self.cas.compareandswap(str(get_thread_ident()),str(0))
-         # assert r == True 
+         assert r == True
          print str(nanotime.now())+" UNLOCKED " + str(get_thread_ident())
 
+# No concurrent write 
 class Map():
 
     def __init__(self,key):
@@ -155,13 +170,10 @@ class Map():
 
     # linearizable call cause every column is linearizable 
     def toOrderedDict(self): 
-        over = False
-        previous = None
-        while over != True:
-            current = self.MAP.get(self,column_count=cass_max_col)
-            over = (previous == current)
-            previous = current
-        return current
+        try:
+            return self.MAP.get(self.key,column_count=cass_max_col)
+        except NotFoundException:
+            return dict()
 
     def keyset(self):
         return self.toOrderedDict().keyset()
@@ -175,15 +187,51 @@ class Map():
 
 class Racing():
 
-    def enter(pid):
+    def __init__(self,class_name):
+        self.class_name = class_name
+
+    def enter(self,pid):
         raise Error("Uncorrect racing definition")
 
-class NaturalRacing(Racing):
+    def newinstance(self,k):
+        module = __import__("pssolib").types
+        class_ = getattr(module, self.class_name)
+        return class_(k)
 
-    def __init__(self):
+class PseudoRacing(Racing):
+
+    def __init__(self,key,class_name):
+        Racing.__init__(self,class_name)
+        self.class_name = class_name
+        self.key = key
         self.i = 0
 
     def enter(self,pid):
-        self.i = self.i + 1
-        return self.i
+        self.i = self.i + 1        
+        return self.newinstance(uuid_add(self.key,self.i))
 
+class NaturalRacing(Racing):
+
+    def __init__(self,key,class_name):
+        Racing.__init__(self,class_name)
+        self.last = None
+        self.key = key
+        self.M = Map(self.key)
+
+    def enter(self,pid):
+
+        if self.last != None:
+            self.M.put(str(pid),str(self.last))
+
+        m = 0
+        for (k,v) in self.M.toOrderedDict().iteritems():
+            if int(v) > m:
+                m = int(v)
+        if m == self.last:
+            m = m + 1
+
+        self.last = m
+
+        print "entering "+self.class_name+"#"+str(uuid_add(self.key,m))
+        return self.newinstance(uuid_add(self.key,m))
+    
