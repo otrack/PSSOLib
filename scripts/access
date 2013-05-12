@@ -7,7 +7,8 @@ from pssolib.types import *
 from pssolib.utils import *
 import uuid, sys, time, timeit
 from multiprocessing import Process
-import zklock
+import kazoo
+from kazoo.client import KazooClient
 
 if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <spin|cas> <host1:port1>,<host2:port2>,...  <objectid> <#it> <nap>".format(sys.argv[0])
@@ -51,9 +52,9 @@ def zk_measure(obj,it):
             print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_zk_access,number=it)/it*1000)
 
 def spin_zk_access():
-    z.acquire()
+    lock.acquire()
     time.sleep(nap*0.001)
-    z.release()
+    lock.release()
 
 def cas_zk_access():
     z.acquire()
@@ -74,9 +75,13 @@ if sys.argv[1]=="P":
     cons = Consensus(id1)
     pssolib_measure(sys.argv[2],it)
 else:
-    zklock.connect(sys.argv[3]+":2181")
-    z = zklock.Lock(sys.argv[4])
+    zk = KazooClient(hosts=sys.argv[3])
+    zk.start()
+    lock = zk.Lock("/lockpath", "test")
     zk_measure(sys.argv[2],it)
+    zk.stop()
+
+
 
 # Closing stdout/err
 
