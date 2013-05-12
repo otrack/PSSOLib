@@ -42,7 +42,7 @@ for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
 
     # napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
-    napseq="1 ${nclients} $((${nclients}*2))"
+    napseq="1 $((${nclients}*2)) $((${nclients}*5))"
     for nap in ${napseq}
     do
 
