@@ -49,6 +49,10 @@ class WeakAdoptCommit():
             # Check that the result does not exist first.
             try:
                 u = self.WAC.get(self.key,columns=['d'])['d']
+                try:
+                    self.WAC.get(self.key,columns=['c'])
+                except NotFoundException:
+                    return (u,'COMMIT')
                 return (u,'ADOPT')
             except NotFoundException:
                 pass
