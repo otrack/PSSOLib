@@ -77,7 +77,6 @@ class Consensus():
         while True:
             try:
                 d=self.CONSENSUS.get(self.key,columns=['d'])['d']
-
                 return d
             except NotFoundException:
                 pass
@@ -111,7 +110,9 @@ class Cas():
             if self.C == None:
                 self.C = self.R.enter(self.pid)
 
-            if self.C.decision() == None:
+            decision = self.C.decision()
+            
+            if decision == None:
 
                 if self.last[0] != u:
                     # print "failed with "+str(self.last)+" "+u+";"+v
@@ -125,7 +126,7 @@ class Cas():
                     
                 return True
         
-            self.last = self.C.decision().rsplit(":",1)
+            self.last = decision.rsplit(":",1)
         
             self.C = self.R.enter(self.pid)
 
