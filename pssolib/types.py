@@ -27,8 +27,8 @@ class Splitter():
         try: 
             x = self.SPLITTER.get(self.key,columns=['x'])
         except NotFoundException: # FIXME how could this happen .....
-            print "weird"
             return False
+
         if x['x']!=self.pid:
             return False
         return True
@@ -85,28 +85,23 @@ class Consensus():
 
     def propose(self,u):
         # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
-        mdelay=0
-        maxdelay=0.016
-
+        k=0
         while True:
-            try:
-                d=self.CONSENSUS.get(self.key,columns=['d'])['d']
-                return d
-            except NotFoundException:
-                pass
+
+            # Check that the result does not exist first.
+            k = k+1
+            for i in range(0,k):
+                try:
+                    d=self.CONSENSUS.get(self.key,columns=['d'])['d']
+                    return d
+                except NotFoundException:
+                    pass
+
             r = self.R.enter(self.pid).adoptCommit(u)
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
                 print str(self.key)+" decision "+u
-            else:
-                if mdelay==0:
-                    mdelay=0.001
-                else:
-                    mdelay=mdelay*2 # exp backoff
-                    if mdelay>maxdelay:
-                        mdelay=maxdelay # with a cap
-                        time.sleep(mdelay)
 
     def decision(self):
         try:
