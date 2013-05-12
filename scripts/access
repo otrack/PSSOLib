@@ -62,19 +62,17 @@ def cas_zk_access():
 
 # Configuration & Evaluation
 
-parser = ConfigParser.ConfigParser()
-parser.add_section("main")
-parser.set("main","servers",sys.argv[3])
-parser.set("main","keyspace","access")
-cfg = Config.create(parser,False)
-
 if sys.argv[1]=="P":
+    parser = ConfigParser.ConfigParser()
+    parser.add_section("main")
+    parser.set("main","servers",sys.argv[3])
+    parser.set("main","keyspace","access")
+    cfg = Config.create(parser,False)
     id1=uuid.UUID(sys.argv[4])
     spin = Spinlock(id1)
     cas = Cas(id1,str(0))
     cons = Consensus(id1)
     pssolib_measure(sys.argv[2],it)
-
 else:
     zklock.connect(sys.argv[3]+":2181")
     z = zklock.Lock(sys.argv[4])
