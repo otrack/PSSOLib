@@ -74,6 +74,9 @@ class Consensus():
 
     def propose(self,u):
         # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
+        mdelay=0
+        maxdelay=0.016
+
         while True:
             try:
                 d=self.CONSENSUS.get(self.key,columns=['d'])['d']
@@ -85,6 +88,14 @@ class Consensus():
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
                 print str(self.key)+" decision "+u
+            else:
+                if mdelay==0:
+                    mdelay=0.001
+                else:
+                    mdelay=mdelay*2 # exp backoff
+                    if mdelay>maxdelay:
+                        mdelay=maxdelay # with a cap
+                        time.sleep(mdelay)
 
     def decision(self):
         try:
