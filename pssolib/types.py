@@ -27,6 +27,7 @@ class Splitter():
         try: 
             x = self.SPLITTER.get(self.key,columns=['x'])
         except NotFoundException: # FIXME how could this happen .....
+            print "weird"
             return False
         if x['x']!=self.pid:
             return False
