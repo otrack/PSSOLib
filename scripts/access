@@ -53,8 +53,8 @@ def zk_measure(obj,it):
 
 def spin_zk_access():
     lock.acquire()
-    time.sleep(nap*0.001)
     lock.release()
+    time.sleep(nap*0.001)
 
 def cas_zk_access():
     z.acquire()
