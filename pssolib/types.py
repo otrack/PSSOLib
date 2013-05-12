@@ -39,7 +39,10 @@ class WeakAdoptCommit():
         self.key = key
         self.WAC = Config.get().WAC
 
-    def adoptCommit(self,u):
+    def adoptCommit(self,u,k):
+
+        mdelay=0.001*(k-1)*(get_thread_ident()%k)
+        time.sleep(mdelay)
 
         s = Splitter(self.key)
         isWin = s.split()
@@ -54,15 +57,16 @@ class WeakAdoptCommit():
         else : 
 
             # Check that the result does not exist first.
-            try:
-                u = self.WAC.get(self.key,columns=['d'])['d']
+            for i in range(0,k):
                 try:
-                    self.WAC.get(self.key,columns=['c'])
+                    u = self.WAC.get(self.key,columns=['d'])['d']
+                    try:
+                        self.WAC.get(self.key,columns=['c'])
+                    except NotFoundException:
+                        return (u,'COMMIT')
+                    return (u,'ADOPT')
                 except NotFoundException:
-                    return (u,'COMMIT')
-                return (u,'ADOPT')
-            except NotFoundException:
-                pass
+                    pass
 
             self.WAC.insert(self.key,{'c':1})
             try:
@@ -88,16 +92,14 @@ class Consensus():
         k=0
         while True:
 
-            # Check that the result does not exist first.
-            k = k+1
-            for i in range(0,k):
-                try:
-                    d=self.CONSENSUS.get(self.key,columns=['d'])['d']
-                    return d
-                except NotFoundException:
-                    pass
+            try:
+                d=self.CONSENSUS.get(self.key,columns=['d'])['d']
+                return d
+            except NotFoundException:
+                pass
 
-            r = self.R.enter(self.pid).adoptCommit(u)
+            k=k+1
+            r = self.R.enter(self.pid).adoptCommit(u,k)
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
