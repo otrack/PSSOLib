@@ -9,6 +9,9 @@ import uuid, sys, time, timeit
 from multiprocessing import Process
 import kazoo
 from kazoo.client import KazooClient
+from kazoo.exceptions import NodeExistsError
+from kazoo.exceptions import BadVersionError
+
 
 if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <spin|cas> <host1:port1>,<host2:port2>,...  <objectid> <#it> <nap>".format(sys.argv[0])
@@ -49,7 +52,7 @@ def zk_measure(obj,it):
     if obj == 'spin':
         print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
     if obj == 'cas':
-            print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_zk_access,number=it)/it*1000)
+        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_zk_access,number=it)/it*1000)
 
 def spin_zk_access():
     lock.acquire()
@@ -57,9 +60,21 @@ def spin_zk_access():
     time.sleep(nap*0.001)
 
 def cas_zk_access():
-    z.acquire()
-    z.release()
+    a = str(random.randint(0, 10))
+    b = str(random.randint(0, 10))
+    r = cas_zk(a,b)
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
     time.sleep(nap*0.001)
+
+def cas_zk(a,b):
+    t = zk.get(cas)
+    if t[0] == a:
+        try:
+            zk.set(cas,b,(t[1].version))
+            return True
+        except BadVersionError:
+            pass
+    return False
 
 # Configuration & Evaluation
 
@@ -75,12 +90,18 @@ if sys.argv[1]=="P":
     cons = Consensus(id1)
     pssolib_measure(sys.argv[2],it)
 else:
-    zk = KazooClient(hosts=sys.argv[3])
+    zk = KazooClient(hosts=sys.argv[3])    
     zk.start()
-    lock = zk.Lock("/lockpath", "test")
+    if sys.argv[2] == 'spin':
+        lock = zk.Lock("/"+sys.argv[4], "test")
+    else:
+        try:
+            cas = "/"+sys.argv[4]
+            zk.create(cas,str(0))
+        except NodeExistsError:
+            pass
     zk_measure(sys.argv[2],it)
     zk.stop()
-
 
 
 # Closing stdout/err
