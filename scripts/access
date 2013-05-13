@@ -42,10 +42,13 @@ def pssolib_measure(obj,it):
         print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
 
 def spin_pssolib_access():
-    spin.lock()
-    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
-    spin.unlock()
-    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
+    try:
+        spin.lock()
+        print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
+        spin.unlock()
+        print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
+    except:
+        pass
 
 
 def cas_pssolib_access():
