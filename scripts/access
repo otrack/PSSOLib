@@ -32,17 +32,23 @@ def pssolib_measure(obj,it):
         print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cons_pssolib_access,number=it)/it*1000)
 
 def spin_pssolib_access():
-    spin.lock()
-    spin.unlock()
-    time.sleep(nap*0.001)
+    try:
+        spin.lock()
+        spin.unlock()
+        time.sleep(nap*0.001)
+    except:
+        pass
 
 def cas_pssolib_access():
     # a = str(random.randint(0, 1000))
     # b = str(random.randint(0, 1000))
     a = "0"
     b = "0"
-    r = cas.compareandswap(a,b)
-    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
+    try:
+        r = cas.compareandswap(a,b)
+        print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
+    except:
+        pass
 
 def cons_pssolib_access():
     r = cons.propose(str(get_thread_ident()))
