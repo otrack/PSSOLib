@@ -157,7 +157,7 @@ class Spinlock():
         maxdelay=32
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
             if mdelay==0:
-                mdelay=1
+                mdelay=2
             else:
                 mdelay=mdelay*2 # exp backoff
             if mdelay>maxdelay:
