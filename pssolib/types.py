@@ -245,8 +245,12 @@ class NaturalRacing(Racing):
         for (k,v) in self.M.toOrderedDict().iteritems():
             if int(v) > m:
                 m = int(v)
+
+        assert m >= self.last
+
         if m == self.last:
             m = m + 1
+
 
         self.last = m
 
