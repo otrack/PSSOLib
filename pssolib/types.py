@@ -93,7 +93,7 @@ class Consensus():
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
                 print str(self.key)+" decision "+u
-                return d
+                return u
 
     def decision(self):
         try:
