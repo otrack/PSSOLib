@@ -37,11 +37,10 @@ def spin_pssolib_access():
     time.sleep(nap*0.001)
 
 def cas_pssolib_access():
-    a = str(random.randint(0, 100))
-    b = str(random.randint(0, 100))
+    a = str(random.randint(0, 1000))
+    b = str(random.randint(0, 1000))
     r = cas.compareandswap(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
-    time.sleep(nap*0.001)
 
 def cons_pssolib_access():
     r = cons.propose(str(get_thread_ident()))
@@ -60,11 +59,10 @@ def spin_zk_access():
     time.sleep(nap*0.001)
 
 def cas_zk_access():
-    a = str(random.randint(0, 100))
-    b = str(random.randint(0, 100))
+    a = str(random.randint(0, 1000))
+    b = str(random.randint(0, 1000))
     r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
-    time.sleep(nap*0.001)
 
 def cas_zk(a,b):
     t = zk.get(cas)

@@ -51,14 +51,13 @@ class WeakAdoptCommit():
             for i in range(0,k):
                 try:
                     u = self.WAC.get(self.key,columns=['d'])['d']
+                    try:
+                        self.WAC.get(self.key,columns=['c'])
+                    except NotFoundException:
+                        return (u,'COMMIT')
+                    return (u,'ADOPT')
                 except NotFoundException:
                     pass
-            if u != None:
-                try:
-                    self.WAC.get(self.key,columns=['c'])
-                except NotFoundException:
-                    return (u,'COMMIT')
-                return (u,'ADOPT')
 
             self.WAC.insert(self.key,{'c':1})
             try:
