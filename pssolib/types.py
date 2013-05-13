@@ -33,7 +33,7 @@ class WeakAdoptCommit():
         self.key = key
         self.WAC = Config.get().WAC
 
-    def adoptCommit(self,u,k):
+    def adoptCommit(self,u):
 
         s = Splitter(self.key)
         isWin = s.split()
@@ -48,16 +48,15 @@ class WeakAdoptCommit():
         else : 
 
             # Check that the result does not exist first.
-            for i in range(0,k):
+            try:
+                u = self.WAC.get(self.key,columns=['d'])['d']
                 try:
-                    u = self.WAC.get(self.key,columns=['d'])['d']
-                    try:
-                        self.WAC.get(self.key,columns=['c'])
-                    except NotFoundException:
-                        return (u,'COMMIT')
-                    return (u,'ADOPT')
+                    self.WAC.get(self.key,columns=['c'])
                 except NotFoundException:
-                    pass
+                    return (u,'COMMIT')
+                return (u,'ADOPT')
+            except NotFoundException:
+                pass
 
             self.WAC.insert(self.key,{'c':1})
             try:
@@ -80,7 +79,6 @@ class Consensus():
 
     def propose(self,u):
         # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
-        k=0
         while True:
 
             try:
@@ -89,8 +87,7 @@ class Consensus():
             except NotFoundException:
                 pass
 
-            k=k+1
-            r = self.R.enter(self.pid).adoptCommit(u,k)
+            r = self.R.enter(self.pid).adoptCommit(u)
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
