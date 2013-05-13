@@ -154,7 +154,7 @@ class Spinlock():
         
     def lock(self):
         mdelay=0
-        maxdelay=0.032
+        maxdelay=32
         while self.cas.compareandswap(str(0),str(get_thread_ident())) != True:
             if mdelay==0:
                 mdelay=1

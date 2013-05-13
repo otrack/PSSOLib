@@ -57,7 +57,7 @@ class Config():
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
         self.MAP = ColumnFamily(self.POOL, 'map')
-        self.MAP.read_consistency_level = ConsistencyLevel.ONE
+        self.MAP.read_consistency_level = ConsistencyLevel.QUORUM  
         self.MAP.write_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
@@ -71,7 +71,7 @@ class Config():
         self.SPLITTER.column_validators['y'] = BooleanType() # boolean
 
         self.WAC = ColumnFamily(self.POOL, 'wac')
-        self.WAC.read_consistency_level = ConsistencyLevel.ONE
+        self.WAC.read_consistency_level = ConsistencyLevel.QUORUM  
         self.WAC.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WAC.key_validation_class = LexicalUUIDType()
         self.WAC.column_name_class = AsciiType() 
@@ -79,7 +79,7 @@ class Config():
         # CONSENSUS.column_validators['d'] = BytesType() # Weak adopt-commit value
 
         self.CONSENSUS = ColumnFamily(self.POOL, 'consensus')
-        self.CONSENSUS.read_consistency_level = ConsistencyLevel.ONE
+        self.CONSENSUS.read_consistency_level = ConsistencyLevel.QUORUM
         self.CONSENSUS.write_consistency_level = ConsistencyLevel.QUORUM    
         self.CONSENSUS.key_validation_class = LexicalUUIDType()
         self.CONSENSUS.column_name_class = AsciiType() 
