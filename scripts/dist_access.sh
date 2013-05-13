@@ -16,11 +16,11 @@ then
 fi;
 
 # 1 - Clean-up
-# rm -Rf ${EXP_TMP_DIR}/*
-# if [ ! -e ${EXP_TMP_DIR} ]
-# then
-#     mkdir ${EXP_TMP_DIR}
-# fi
+rm -Rf ${EXP_TMP_DIR}/*
+if [ ! -e ${EXP_TMP_DIR} ]
+then
+    mkdir ${EXP_TMP_DIR}
+fi
 # if [[ $1 == 'P' ]]
 # then
 #     ./clean $3 "access"
@@ -30,8 +30,8 @@ fi;
 
 # 2 - Launch experiments
 
-client_min=20
-client_max=20
+client_min=1
+client_max=1
 client_incr=1
 
 nap_min=0
