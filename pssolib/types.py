@@ -74,7 +74,7 @@ class Consensus():
         # FIXME
         m = md5.new()
         m.update(str(key))
-        self.R = NaturalRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
+        self.R = PseudoRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
 
     def propose(self,u):
         # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
