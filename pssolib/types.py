@@ -10,12 +10,6 @@ class Splitter():
         self.SPLITTER = Config.get().SPLITTER
 
     def split(self):
-        try: 
-            x = self.SPLITTER.get(self.key,columns=['x'])
-            return False
-        except NotFoundException:
-            pass
-
         self.SPLITTER.insert(self.key,{'x':self.pid})
         try:
             self.SPLITTER.get(self.key,columns=['y'])
@@ -28,6 +22,7 @@ class Splitter():
 
         if x['x']!=self.pid:
             return False
+
         return True
 
 class WeakAdoptCommit():
