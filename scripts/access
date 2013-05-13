@@ -32,7 +32,9 @@ def pssolib_measure(obj,it):
 
 def spin_pssolib_access():
     spin.lock()
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
     spin.unlock()
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
     time.sleep(nap*0.001)
 
 def cas_pssolib_access():
