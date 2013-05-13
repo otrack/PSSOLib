@@ -74,6 +74,7 @@ def cas_zk_access():
     r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
+# This is not wait-free
 def cas_zk(a,b):
     retry = True
     while retry == True:

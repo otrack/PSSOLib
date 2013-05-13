@@ -129,11 +129,11 @@ class Cas():
             
                 self.last = self.C.propose(v+":"+str(self.pid)).rsplit(":",1)
             
-                if (self.last[0] != v) or (self.last[1] != str(self.pid)):
-                    # print "failed after propose with "+str(self.last)+" "+u+";"+v
+                if self.last[1] == str(self.pid):
+                    return True
+                
+                if self.last[0] != u:
                     return False
-                    
-                return True
         
             self.last = decision.rsplit(":",1)
         
