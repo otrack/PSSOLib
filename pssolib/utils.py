@@ -57,8 +57,8 @@ class Config():
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
         self.MAP = ColumnFamily(self.POOL, 'map')
-        self.MAP.read_consistency_level = ConsistencyLevel.QUORUM   
-        self.MAP.write_consistency_level = ConsistencyLevel.QUORUM    
+        self.MAP.read_consistency_level = ConsistencyLevel.ONE  
+        self.MAP.write_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
 
