@@ -74,18 +74,12 @@ class Consensus():
         # FIXME
         m = md5.new()
         m.update(str(key))
-        self.R = NaturalRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
+        self.R = PseudoRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
 
     def propose(self,u):
         # print "proposing "+u+" in "+ "Consensus#"+str(self.key)
         k=0
         while True:
-
-            try:
-                d=self.CONSENSUS.get(self.key,columns=['d'])['d']
-                return d
-            except NotFoundException:
-                pass
 
             k=k+1
             r = self.R.enter(self.pid).adoptCommit(u,k)
@@ -94,6 +88,12 @@ class Consensus():
                 self.CONSENSUS.insert(self.key,{'d':u})
                 print str(self.key)+" decision "+u
                 return u
+
+            try:
+                d=self.CONSENSUS.get(self.key,columns=['d'])['d']
+                return d
+            except NotFoundException:
+                pass
 
     def decision(self):
         try:
