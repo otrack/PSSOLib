@@ -47,17 +47,17 @@ class WeakAdoptCommit():
 
         else : 
 
-            # # Check that the result does not exist first.
-            # for i in range(0,k):
-            #     try:
-            #         v = self.WAC.get(self.key,columns=['d'])['d']
-            #         try:
-            #             self.WAC.get(self.key,columns=['c'])
-            #         except NotFoundException:
-            #             return (v,'COMMIT')
-            #         return (v,'ADOPT')
-            #     except NotFoundException:
-            #         pass
+            # Check that the result does not exist first.
+            for i in range(0,k):
+                try:
+                    v = self.WAC.get(self.key,columns=['d'])['d']
+                    try:
+                        self.WAC.get(self.key,columns=['c'])
+                    except NotFoundException:
+                        return (v,'COMMIT')
+                    return (v,'ADOPT')
+                except NotFoundException:
+                    pass
 
             self.WAC.insert(self.key,{'c':1})
             try:
@@ -240,17 +240,16 @@ class NaturalRacing(Racing):
 
         if self.last != None:
             self.M.put(str(pid),str(self.last))
+            m = last
+        else:
+            m = 0
 
-        m = 0
         for (k,v) in self.M.toOrderedDict().iteritems():
             if int(v) > m:
                 m = int(v)
 
-        assert m >= self.last
-
         if m == self.last:
             m = m + 1
-
 
         self.last = m
 
