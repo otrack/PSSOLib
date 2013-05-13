@@ -30,8 +30,8 @@ fi
 
 # 2 - Launch experiments
 
-client_min=1
-client_max=10
+client_min=4
+client_max=4
 client_incr=1
 
 nap_min=1
@@ -41,8 +41,8 @@ nap_incr=10
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
 
-    napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
-    # napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40))"
+    # napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
+    napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40))"
     for nap in ${napseq}
     do
 
