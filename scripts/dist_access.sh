@@ -30,26 +30,26 @@ fi
 
 # 2 - Launch experiments
 
-client_min=4
-client_max=4
-client_incr=1
+client_min=10
+client_max=50
+client_incr=10
 
-nap_min=20
-nap_max=20
+nap_min=0
+nap_max=0
 nap_incr=10
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
 
-    # napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
-    napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40)) $((${nclients}*80))"
+    napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
+    # napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40)) $((${nclients}*80))"
     for nap in ${napseq}
     do
 
         # 2.1 - Run an  experiment
-	objectid=`uuidgen`
 	for i in `seq 1 ${nclients}` 
 	do
+	    objectid=`uuidgen`
 	    ./access $1 $2 $3 ${objectid} ${N_IT} ${nap} &> ${EXP_TMP_DIR}/$i &
 	done
 	wait 

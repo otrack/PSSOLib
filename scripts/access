@@ -26,7 +26,10 @@ def pssolib_measure(obj,it):
 
     for k in range(0,it):
 
-        sleeptime = random.expovariate(1.0/nap)
+        if nap == 0:
+            sleeptime = 0
+        else:
+            sleeptime = random.expovariate(1.0/nap)
         time.sleep(sleeptime*0.001)
         print "Sleeping "+ str(sleeptime)+" ms"
 
@@ -61,7 +64,10 @@ def cons_pssolib_access():
 def zk_measure(obj,it):
     for k in range(0,it):
 
-        sleeptime = random.expovariate(1.0/nap)
+        if nap == 0:
+            sleeptime = 0
+        else:
+            sleeptime = random.expovariate(1.0/nap)
         time.sleep(sleeptime*0.001)
         print "Sleeping "+ str(sleeptime)+" ms"
 
