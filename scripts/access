@@ -92,9 +92,15 @@ if sys.argv[1]=="P":
     cons = Consensus(id1)
     pssolib_measure(sys.argv[2],it)
 else:
-    zk = KazooClient(hosts=sys.argv[3],timeout=20.0)    
-    zk.start()
-        
+    zk = KazooClient(hosts=sys.argv[3])    
+    isConnected=False
+    while isConnected == False:
+        try:
+            zk.start()
+            isConnected = True
+        except:
+            pass
+
     if sys.argv[2] == 'spin':
         lock = zk.Lock("/"+sys.argv[4], "test")
     else:
