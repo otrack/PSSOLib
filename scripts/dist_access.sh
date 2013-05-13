@@ -2,7 +2,7 @@
 
 bc=`which bc`
 EXP_TMP_DIR=/tmp/exp
-N_IT=100
+N_IT=1000
 
 function absolute(){
     awk ' { if($1>=0) { print $1} else {print $1*-1 }}'
@@ -16,22 +16,22 @@ then
 fi;
 
 # 1 - Clean-up
-rm -Rf ${EXP_TMP_DIR}/*
-if [ ! -e ${EXP_TMP_DIR} ]
-then
-    mkdir ${EXP_TMP_DIR}
-fi
-if [[ $1 == 'P' ]]
-then
-    ./clean $3 "access"
-    wait
-    sleep 5
-fi
+# rm -Rf ${EXP_TMP_DIR}/*
+# if [ ! -e ${EXP_TMP_DIR} ]
+# then
+#     mkdir ${EXP_TMP_DIR}
+# fi
+# if [[ $1 == 'P' ]]
+# then
+#     ./clean $3 "access"
+#     wait
+#     sleep 5
+# fi
 
 # 2 - Launch experiments
 
-client_min=1
-client_max=1
+client_min=20
+client_max=20
 client_incr=1
 
 nap_min=0
