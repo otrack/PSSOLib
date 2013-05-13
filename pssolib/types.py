@@ -240,7 +240,7 @@ class NaturalRacing(Racing):
 
         if self.last != None:
             self.M.put(str(pid),str(self.last))
-            m = last
+            m = self.last
         else:
             m = 0
 
