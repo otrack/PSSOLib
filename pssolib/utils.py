@@ -47,19 +47,19 @@ class Config():
 
             self.SYSM.create_column_family(self.KEYSPACE, 'map', \
                                                super=False, \
-                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               read_consistency_level = ConsistencyLevel.ALL, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
             self.SYSM.create_column_family(self.KEYSPACE, 'splitter', \
                                                super=False, \
-                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               read_consistency_level = ConsistencyLevel.ALL, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
             self.SYSM.create_column_family(self.KEYSPACE, 'wac', \
                                                super=False, \
-                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               read_consistency_level = ConsistencyLevel.ALL, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
             self.SYSM.create_column_family(self.KEYSPACE, 'consensus', \
                                                super=False, \
-                                               read_consistency_level = ConsistencyLevel.QUORUM, \
+                                               read_consistency_level = ConsistencyLevel.ALL, \
                                                write_consistency_level = ConsistencyLevel.QUORUM)
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
