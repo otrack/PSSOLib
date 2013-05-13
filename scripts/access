@@ -75,13 +75,17 @@ def cas_zk_access():
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
 def cas_zk(a,b):
-    t = zk.get(cas)
-    if t[0] == a:
-        try:
-            zk.set(cas,b,(t[1].version))
-            return True
-        except BadVersionError:
-            pass
+    retry = True
+    while retry == True:
+        t = zk.get(cas)
+        if t[0] == a:
+            try:
+                zk.set(cas,b,(t[1].version))
+                return True
+            except BadVersionError:
+                pass
+        else:
+            retry = False
     return False
 
 # Configuration & Evaluation
