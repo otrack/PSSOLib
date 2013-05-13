@@ -13,7 +13,7 @@ class Splitter():
         try: 
             x = self.SPLITTER.get(self.key,columns=['x'])
             return False
-        except NotFoundException
+        except NotFoundException:
             pass
 
         self.SPLITTER.insert(self.key,{'x':self.pid})
