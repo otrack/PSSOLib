@@ -25,18 +25,18 @@ nap=int(sys.argv[6])
 def pssolib_measure(obj,it):
 
     for k in range(0,it):
+
+        sleeptime = random.expovariate(1.0/nap)
+        time.sleep(sleeptime*0.001)
+        print "Sleeping "+ str(sleeptime)+" ms"
+
         if obj == 'spin':
             executetime = timeit.timeit(spin_pssolib_access,number=1)*1000
         if obj == 'cas':
             executetime = timeit.timeit(cas_pssolib_access,number=1)*1000
         if obj == 'cons':
             executetime = timeit.timeit(cons_pssolib_access,number=1)*1000
-
-        sleeptime = random.expovariate(1.0/nap)
         print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
-        time.sleep(sleeptime*0.001)
-        print "Sleeping "+ str(sleeptime)+" ms"
-
 
 def spin_pssolib_access():
     spin.lock()
@@ -60,17 +60,18 @@ def cons_pssolib_access():
 
 def zk_measure(obj,it):
     for k in range(0,it):
+
+        sleeptime = random.expovariate(1.0/nap)
+        time.sleep(sleeptime*0.001)
+        print "Sleeping "+ str(sleeptime)+" ms"
+
         if obj == 'spin':
             executetime = timeit.timeit(spin_zk_access,number=1)*1000
         if obj == 'cas':
             executetime = timeit.timeit(cas_zk_access,number=1)*1000
         if obj == 'cons':
             executetime = timeit.timeit(cons_zk_access,number=1)*1000
-
-        sleeptime = random.expovariate(1.0/nap)
         print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
-        time.sleep(sleeptime*0.001)
-        print "Sleeping "+ str(sleeptime)+" ms"
 
 def spin_zk_access():
     lock.acquire()
