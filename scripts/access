@@ -110,7 +110,7 @@ else:
             pass
 
     if sys.argv[2] == 'spin':
-        lock = zk.Lock("/"+sys.argv[4], "test")
+        lock = zk.Lock("/"+sys.argv[4])
     else:
         try:
             cas = "/"+sys.argv[4]
