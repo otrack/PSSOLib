@@ -24,10 +24,7 @@ class Splitter():
             pass
 
         self.SPLITTER.insert(self.key,{'y':True})
-        try: 
-            x = self.SPLITTER.get(self.key,columns=['x'])
-        except NotFoundException: # FIXME how could this happen .....
-            return False
+        x = self.SPLITTER.get(self.key,columns=['x'])
 
         if x['x']!=self.pid:
             return False
