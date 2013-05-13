@@ -162,8 +162,8 @@ class Spinlock():
                 mdelay=mdelay*2 # exp backoff
             if mdelay>maxdelay:
                 mdelay=maxdelay # with a cap
-                sleeptime = random.expovariate(1.0/mdelay)
-                time.sleep(sleeptime*0.001)
+            sleeptime = random.expovariate(1.0/mdelay)
+            time.sleep(sleeptime*0.001)
             pass
         mdelay=0
         
