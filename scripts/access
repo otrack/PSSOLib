@@ -60,8 +60,8 @@ def spin_zk_access():
     time.sleep(nap*0.001)
 
 def cas_zk_access():
-    a = str(random.randint(0, 10))
-    b = str(random.randint(0, 10))
+    a = str(random.randint(0, 100))
+    b = str(random.randint(0, 100))
     r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
     time.sleep(nap*0.001)
