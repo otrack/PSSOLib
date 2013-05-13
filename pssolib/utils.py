@@ -44,43 +44,38 @@ class Config():
             except:
                 pass
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': '3'})
-
-            self.SYSM.create_column_family(self.KEYSPACE, 'map', \
-                                               super=False, \
-                                               read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.ALL)
-            self.SYSM.create_column_family(self.KEYSPACE, 'splitter', \
-                                               super=False, \
-                                               read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.ALL)
-            self.SYSM.create_column_family(self.KEYSPACE, 'wac', \
-                                               super=False, \
-                                               read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.ALL)
-            self.SYSM.create_column_family(self.KEYSPACE, 'consensus', \
-                                               super=False, \
-                                               read_consistency_level = ConsistencyLevel.ALL, \
-                                               write_consistency_level = ConsistencyLevel.ALL)
+            self.SYSM.create_column_family(self.KEYSPACE, 'map')
+            self.SYSM.create_column_family(self.KEYSPACE, 'splitter')
+            self.SYSM.create_column_family(self.KEYSPACE, 'wac')
+            self.SYSM.create_column_family(self.KEYSPACE, 'consensus')
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
         self.MAP = ColumnFamily(self.POOL, 'map')
+        self.MAP.read_consistency_level = ConsistencyLevel.QUORUM   
+        self.MAP.write_consistency_level = ConsistencyLevel.QUORUM    
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
 
         self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
+        self.SPLITTER.read_consistency_level = ConsistencyLevel.QUORUM   
+        self.SPLITTER.write_consistency_level = ConsistencyLevel.QUORUM    
         self.SPLITTER.key_validation_class = LexicalUUIDType()
         self.SPLITTER.column_name_class = AsciiType()
         self.SPLITTER.column_validators['x'] = IntegerType() # PID
         self.SPLITTER.column_validators['y'] = BooleanType() # boolean
 
         self.WAC = ColumnFamily(self.POOL, 'wac')
+        self.WAC.read_consistency_level = ConsistencyLevel.QUORUM   
+        self.WAC.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WAC.key_validation_class = LexicalUUIDType()
         self.WAC.column_name_class = AsciiType() 
         self.WAC.column_validators['c'] = IntegerType() # Conflict flag
         # CONSENSUS.column_validators['d'] = BytesType() # Weak adopt-commit value
 
         self.CONSENSUS = ColumnFamily(self.POOL, 'consensus')
+        self.CONSENSUS.read_consistency_level = ConsistencyLevel.QUORUM   
+        self.CONSENSUS.write_consistency_level = ConsistencyLevel.QUORUM    
         self.CONSENSUS.key_validation_class = LexicalUUIDType()
         self.CONSENSUS.column_name_class = AsciiType() 
         # CONSENSUS.column_validators['v'] = BytesType() # Consensus value
