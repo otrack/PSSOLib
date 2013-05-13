@@ -56,7 +56,9 @@ def zk_measure(obj,it):
 
 def spin_zk_access():
     lock.acquire()
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
     lock.release()
+    print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
     time.sleep(nap*0.001)
 
 def cas_zk_access():
