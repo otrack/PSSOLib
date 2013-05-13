@@ -10,12 +10,6 @@ class Splitter():
         self.SPLITTER = Config.get().SPLITTER
 
     def split(self):
-        try:
-            self.SPLITTER.get(self.key,columns=['x'])
-            return False
-        except NotFoundException:
-            pass
-
         self.SPLITTER.insert(self.key,{'x':self.pid})
         try:
             self.SPLITTER.get(self.key,columns=['y'])
@@ -41,9 +35,6 @@ class WeakAdoptCommit():
 
     def adoptCommit(self,u,k):
 
-        mdelay=0.001*(k-1)*(get_thread_ident()%k)
-        time.sleep(mdelay)
-
         s = Splitter(self.key)
         isWin = s.split()
 
@@ -60,13 +51,14 @@ class WeakAdoptCommit():
             for i in range(0,k):
                 try:
                     u = self.WAC.get(self.key,columns=['d'])['d']
-                    try:
-                        self.WAC.get(self.key,columns=['c'])
-                    except NotFoundException:
-                        return (u,'COMMIT')
-                    return (u,'ADOPT')
                 except NotFoundException:
                     pass
+            if u != None:
+                try:
+                    self.WAC.get(self.key,columns=['c'])
+                except NotFoundException:
+                    return (u,'COMMIT')
+                return (u,'ADOPT')
 
             self.WAC.insert(self.key,{'c':1})
             try:
