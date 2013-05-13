@@ -15,6 +15,7 @@ from pycassa.cassandra.ttypes import NotFoundException
 from pycassa.types import *
 from pycassa.system_manager import *
 from pycassa.cassandra.ttypes import InvalidRequestException, ConsistencyLevel
+from random import choice
 
 class Config():
 
@@ -33,7 +34,7 @@ class Config():
         # 1 - read the config parser
 
         self.SERVERS = parser.get("main","servers").split(",")
-        self.SYSM = SystemManager(self.SERVERS[0])
+        self.SYSM = SystemManager(choice(self.SERVERS))
         self.KEYSPACE = parser.get("main","keyspace")        
 
         # 2 - get or create the keyspace and the column families for each object
