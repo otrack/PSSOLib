@@ -23,19 +23,27 @@ nap=int(sys.argv[6])
 #PSSOLib stuff
 
 def pssolib_measure(obj,it):
-    if obj == 'spin':
-        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_pssolib_access,number=it)/it*1000)
-    if obj == 'cas':
-        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_pssolib_access,number=it)/it*1000)
-    if obj == 'cons':
-        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cons_pssolib_access,number=it)/it*1000)
+
+    for k in range(0,it):
+        if obj == 'spin':
+            executetime = timeit.timeit(spin_pssolib_access,number=1)*1000
+        if obj == 'cas':
+            executetime = timeit.timeit(cas_pssolib_access,number=1)*1000
+        if obj == 'cons':
+            executetime = timeit.timeit(cons_pssolib_access,number=1)*1000
+
+        sleeptime = random.expovariate(1.0/nap)
+        print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
+        time.sleep(sleeptime*0.001)
+        print "Sleeping "+ str(sleeptime)+" ms"
+
 
 def spin_pssolib_access():
     spin.lock()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
     spin.unlock()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
-    time.sleep(nap*0.001)
+
 
 def cas_pssolib_access():
     # a = str(random.randint(0, 1000))
@@ -51,17 +59,24 @@ def cons_pssolib_access():
 # ZK stuff
 
 def zk_measure(obj,it):
-    if obj == 'spin':
-        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(spin_zk_access,number=it)/it*1000)
-    if obj == 'cas':
-        print "PID:"+str(get_thread_ident())+"\t"+str(timeit.timeit(cas_zk_access,number=it)/it*1000)
+    for k in range(0,it):
+        if obj == 'spin':
+            executetime = timeit.timeit(spin_zk_access,number=1)*1000
+        if obj == 'cas':
+            executetime = timeit.timeit(cas_zk_access,number=1)*1000
+        if obj == 'cons':
+            executetime = timeit.timeit(cons_zk_access,number=1)*1000
+
+        sleeptime = random.expovariate(1.0/nap)
+        print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
+        time.sleep(sleeptime*0.001)
+        print "Sleeping "+ str(sleeptime)+" ms"
 
 def spin_zk_access():
     lock.acquire()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" LOCKED"
     lock.release()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
-    time.sleep(nap*0.001)
 
 def cas_zk_access():
     # a = str(random.randint(0, 1000))
