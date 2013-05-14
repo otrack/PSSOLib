@@ -57,6 +57,7 @@ do
          # 2.2 Gather results
  	tlat=0
 	rclients=0
+	echo ""
 	for i in `seq 1 ${nclients}` 
 	do
 	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
@@ -65,9 +66,10 @@ do
 		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
 	    else
-    		echo "."
+    		echo -ne "."
 	    fi;
 	done
+	echo ""
 	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
 
 	# FIXME
@@ -78,10 +80,10 @@ do
 	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){ print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
+		let rclients++
 		lat=`echo "${tmp}"| sed 's/E/*10^/g'`
 		spread=`echo "scale=2;${lat}-${latency}" | ${bc}`
-		tspread=`echo "${tspread}+${spread#-}"`
-		let rclients++
+		tspread=`echo "${tspread}+${spread#-}"`		
 	    fi;
 	done
  	stddev=`echo "scale=2;(${tspread})/${rclients}" | ${bc}`
