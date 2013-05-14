@@ -56,21 +56,23 @@ do
 
          # 2.2 Gather results
  	tlat=0
+	rclients=0
 	for i in `seq 1 ${nclients}` 
 	do
 	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
+		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
 	    else
-    		echo "Experiment is corrupted; aborting !"
-    		exit 1
+    		echo "Experiment is corrupted."
 	    fi;
 	done
-	latency=`echo "scale=2;(${tlat})/${nclients}" | ${bc}`
+	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
 
 	# FIXME
  	tspread=0
+	rclients=0
 	for i in `seq 1 ${nclients}` 
 	do
 	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){ print sum/i}}'`
@@ -79,14 +81,14 @@ do
 		lat=`echo "${tmp}"| sed 's/E/*10^/g'`
 		spread=`echo "scale=2;${lat}-${latency}" | ${bc}`
 		tspread=`echo "${tspread}+${spread#-}"`
+		let rclients++
 	    else
-    		echo "Experiment is corrupted; aborting !"
-    		exit 1
+    		echo "Experiment is corrupted."
 	    fi;
 	done
  	stddev=`echo "scale=2;(${tspread})/${nclients}" | ${bc}`
 
-	echo -e "${nclients}\t${latency}\t${stddev}\t${nap}"
+	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 	
     done
     
