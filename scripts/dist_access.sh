@@ -65,10 +65,9 @@ do
 		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
 	    else
-    		echo -ne " ${i} "
+    		echo -ne "."
 	    fi;
 	done
-	echo "${rclients}"
 	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
 
 	# FIXME
