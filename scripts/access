@@ -93,6 +93,8 @@ def cas_zk_access():
     a = str(random.randint(A, B))
     b = str(random.randint(A, B))
     r = cas_zk(a,b)
+    r = cas_zk(a,b)
+    r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
 # This is not wait-free
