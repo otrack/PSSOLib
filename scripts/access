@@ -19,6 +19,8 @@ if len(sys.argv) != 7:
 
 it=int(sys.argv[5])
 nap=int(sys.argv[6])
+A=0
+B=1
     
 #PSSOLib stuff
 
@@ -51,9 +53,9 @@ def spin_pssolib_access():
         pass
 
 
-def cas_pssolib_access():
-    a = str(random.randint(0, 2))
-    b = str(random.randint(0, 2))
+def cas_pssolib_access(a,b):
+    a = str(random.randint(A, B))
+    b = str(random.randint(A, B))
     r = cas.compareandswap(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
@@ -86,10 +88,8 @@ def spin_zk_access():
     lock.release()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
 
-def cas_zk_access():
-    a = str(random.randint(0, 0))
-    b = str(random.randint(0, 0))
-    r = cas_zk(a,b)
+def cas_zk_access(a,b):
+    r = cas_zk(A,B)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
 # This is not wait-free
