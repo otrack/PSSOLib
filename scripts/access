@@ -88,7 +88,7 @@ def spin_zk_access():
     lock.release()
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
 
-def cas_zk_access(a,b):
+def cas_zk_access():
     r = cas_zk(A,B)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
