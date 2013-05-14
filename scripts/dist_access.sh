@@ -58,7 +58,7 @@ do
  	tlat=0
 	for i in `seq 1 ${nclients}` 
 	do
-	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{print sum/i}'`
+	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
@@ -73,7 +73,7 @@ do
  	tspread=0
 	for i in `seq 1 ${nclients}` 
 	do
-	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{print sum/i}'`
+	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){ print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
 		lat=`echo "${tmp}"| sed 's/E/*10^/g'`
