@@ -30,9 +30,9 @@ fi
 
 # 2 - Launch experiments
 
-client_min=10
-client_max=100
-client_incr=10
+client_min=50
+client_max=300
+client_incr=50
 
 nap_min=0
 nap_max=0
@@ -47,9 +47,9 @@ do
     do
 
         # 2.1 - Run an  experiment
-	objectid=`uuidgen`
 	for i in `seq 1 ${nclients}` 
 	do
+	    objectid=`uuidgen`
 	    ./access $1 $2 $3 ${objectid} ${N_IT} ${nap} &> ${EXP_TMP_DIR}/$i &
 	done
 	wait 
