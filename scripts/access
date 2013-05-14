@@ -52,8 +52,8 @@ def spin_pssolib_access():
 
 
 def cas_pssolib_access():
-    a = str(random.randint(0, 10))
-    b = str(random.randint(0, 10))
+    a = str(random.randint(0, 3))
+    b = str(random.randint(0, 3))
     r = cas.compareandswap(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
@@ -87,8 +87,8 @@ def spin_zk_access():
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
 
 def cas_zk_access():
-    a = str(random.randint(0, 10))
-    b = str(random.randint(0, 10))
+    a = str(random.randint(0, 3))
+    b = str(random.randint(0, 3))
     r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
