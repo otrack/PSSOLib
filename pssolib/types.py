@@ -127,14 +127,15 @@ class Cas():
                     # print "failed with "+str(self.last)+" "+u+";"+v
                     return False;
             
-                self.last = self.C.propose(v+":"+str(self.pid)).rsplit(":",1)
+                decision = self.C.propose(v+":"+str(self.pid))
+                assert decision != None
             
-                if self.last[1] == str(self.pid):
+                if decision.rsplit(":",1)[1] == str(self.pid):
                     return True
                 
-                if self.last[0] != u:
+                if decision.rsplit(":",1)[0] != u:
                     return False
-        
+                
             self.last = decision.rsplit(":",1)
         
             self.C = self.R.enter(self.pid)
