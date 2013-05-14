@@ -30,7 +30,7 @@ fi
 
 # 2 - Launch experiments
 
-client_min=60
+client_min=10
 client_max=100
 client_incr=10
 
