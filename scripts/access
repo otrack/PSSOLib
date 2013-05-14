@@ -89,7 +89,9 @@ def spin_zk_access():
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" UNLOCKED"
 
 def cas_zk_access():
-    r = cas_zk(A,B)
+    a = str(random.randint(A, B))
+    b = str(random.randint(A, B))
+    r = cas_zk(a,b)
     print  str(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S%f')) +" "+str(get_thread_ident())+" "+str(r)+" "+str(a)+" "+str(b)
 
 # This is not wait-free
