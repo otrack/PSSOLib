@@ -2,7 +2,7 @@
 
 bc=`which bc`
 EXP_TMP_DIR=/tmp/exp
-N_IT=2000
+N_IT=1000
 
 function absolute(){
     awk ' { if($1>=0) { print $1} else {print $1*-1 }}'
@@ -30,8 +30,8 @@ fi
 
 # 2 - Launch experiments
 
-client_min=40
-client_max=50
+client_min=4
+client_max=4
 client_incr=10
 
 nap_min=0
@@ -41,8 +41,8 @@ nap_incr=10
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
 
-    napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
-    # napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40)) $((${nclients}*80))"
+    # napseq=`seq ${nap_min} ${nap_incr} ${nap_max}`
+    napseq="$((${nclients}*5)) $((${nclients}*10)) $((${nclients}*20)) $((${nclients}*40)) $((${nclients}*80))"
     for nap in ${napseq}
     do
 
