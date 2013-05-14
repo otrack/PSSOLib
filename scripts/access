@@ -113,17 +113,23 @@ def cas_zk(a,b):
 # Configuration & Evaluation
 
 if sys.argv[1]=="P":
+
     parser = ConfigParser.ConfigParser()
     parser.add_section("main")
     parser.set("main","servers",sys.argv[3])
     parser.set("main","keyspace","access")
     cfg = Config.create(parser,False)
+
     id1=uuid.UUID(sys.argv[4])
     spin = Spinlock(id1)
+
     cas = Cas(id1,str(0))
     cons = Consensus(id1)
+
     pssolib_measure(sys.argv[2],it)
+
 else:
+
     zk = KazooClient(hosts=sys.argv[3])    
     isConnected=False
     while isConnected == False:
@@ -136,20 +142,11 @@ else:
     if sys.argv[2] == 'spin':
         lock = zk.Lock("/"+sys.argv[4])
     else:
-        isConnected=False
-        while isConnected == False:
-            try:
-                cas = "/"+sys.argv[4]
-                zk.create(cas,str(0))
-                isConnected = True
-            except NodeExistsError:
-                isConnected = True
-            except ConnectionLoss:
-                isConnected = False
+        cas = "/"+sys.argv[4]
+        zk.create(cas,str(0))
 
-        zk_measure(sys.argv[2],it)
-        zk.stop()
-
+    zk_measure(sys.argv[2],it)
+    zk.stop()
 
 
 # Closing stdout/err
