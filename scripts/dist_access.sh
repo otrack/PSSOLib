@@ -32,7 +32,7 @@ fi
 
 client_min=100
 client_max=300
-client_incr=100
+client_incr=50
 
 nap_min=0
 nap_max=0
@@ -57,7 +57,6 @@ do
          # 2.2 Gather results
  	tlat=0
 	rclients=0
-	echo ""
 	for i in `seq 1 ${nclients}` 
 	do
 	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
@@ -66,10 +65,10 @@ do
 		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
 	    else
-    		echo -ne "."
+    		echo -ne " ${i} "
 	    fi;
 	done
-	echo ""
+	echo "${rclients}"
 	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
 
 	# FIXME

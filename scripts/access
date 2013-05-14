@@ -11,6 +11,7 @@ import kazoo
 from kazoo.client import KazooClient
 from kazoo.exceptions import NodeExistsError
 from kazoo.exceptions import BadVersionError
+from kazoo.exceptions import ConnectionLoss
 
 if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <spin|cas> <host1:port1>,<host2:port2>,...  <objectid> <#it> <nap>".format(sys.argv[0])
@@ -41,6 +42,7 @@ def pssolib_measure(obj,it):
             executetime = timeit.timeit(cas_pssolib_access,number=1)*1000
         if obj == 'cons':
             executetime = timeit.timeit(cons_pssolib_access,number=1)*1000
+
         print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
 
 def spin_pssolib_access():
@@ -78,8 +80,7 @@ def zk_measure(obj,it):
             executetime = timeit.timeit(spin_zk_access,number=1)*1000
         if obj == 'cas':
             executetime = timeit.timeit(cas_zk_access,number=1)*1000
-        if obj == 'cons':
-            executetime = timeit.timeit(cons_zk_access,number=1)*1000
+
         print "PID:"+str(get_thread_ident())+"\t"+str(executetime)
 
 def spin_zk_access():
@@ -135,13 +136,20 @@ else:
     if sys.argv[2] == 'spin':
         lock = zk.Lock("/"+sys.argv[4])
     else:
-        try:
-            cas = "/"+sys.argv[4]
-            zk.create(cas,str(0))
-        except NodeExistsError:
-            pass
-    zk_measure(sys.argv[2],it)
-    zk.stop()
+        isConnected=False
+        while isConnected == False:
+            try:
+                cas = "/"+sys.argv[4]
+                zk.create(cas,str(0))
+                isConnected = True
+            except NodeExistsError:
+                isConnected = True
+            except ConnectionLoss:
+                isConnected = False
+
+        zk_measure(sys.argv[2],it)
+        zk.stop()
+
 
 
 # Closing stdout/err
