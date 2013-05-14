@@ -31,7 +31,7 @@ fi
 # 2 - Launch experiments
 
 client_min=100
-client_max=100
+client_max=300
 client_incr=100
 
 nap_min=0
@@ -64,6 +64,8 @@ do
 	    then
 		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
+	    else
+    		echo "."
 	    fi;
 	done
 	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
@@ -82,7 +84,7 @@ do
 		let rclients++
 	    fi;
 	done
- 	stddev=`echo "scale=2;(${tspread})/${nclients}" | ${bc}`
+ 	stddev=`echo "scale=2;(${tspread})/${rclients}" | ${bc}`
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 	
