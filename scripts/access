@@ -53,7 +53,7 @@ def spin_pssolib_access():
         pass
 
 
-def cas_pssolib_access(a,b):
+def cas_pssolib_access():
     a = str(random.randint(A, B))
     b = str(random.randint(A, B))
     r = cas.compareandswap(a,b)
