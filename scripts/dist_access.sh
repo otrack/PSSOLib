@@ -64,8 +64,6 @@ do
 	    then
 		let rclients++
 		tlat=`echo "${tlat}+${tmp}"| sed 's/E/*10^/g'`
-	    else
-    		echo "Experiment is corrupted."
 	    fi;
 	done
 	latency=`echo "scale=2;(${tlat})/${rclients}" | ${bc}`
@@ -82,8 +80,6 @@ do
 		spread=`echo "scale=2;${lat}-${latency}" | ${bc}`
 		tspread=`echo "${tspread}+${spread#-}"`
 		let rclients++
-	    else
-    		echo "Experiment is corrupted."
 	    fi;
 	done
  	stddev=`echo "scale=2;(${tspread})/${nclients}" | ${bc}`
