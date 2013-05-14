@@ -2,7 +2,7 @@
 
 bc=`which bc`
 EXP_TMP_DIR=/tmp/exp
-N_IT=500
+N_IT=1000
 
 function absolute(){
     awk ' { if($1>=0) { print $1} else {print $1*-1 }}'
@@ -30,8 +30,8 @@ fi
 
 # 2 - Launch experiments
 
-client_min=300
-client_max=300
+client_min=400
+client_max=400
 client_incr=20
 
 nap_min=0
