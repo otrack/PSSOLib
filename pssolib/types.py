@@ -113,7 +113,7 @@ class Cas():
         self.last = [init,str(self.pid)]
  
     def compareandswap(self,u,v):
-
+        # one can optimize this ...
         while True:
 
             if self.C == None:
