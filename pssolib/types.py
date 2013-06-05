@@ -230,6 +230,7 @@ class Stack():
             if self.head.compareandswap(head,str(l)) == True:
                 return
             self.REGISTER.remove(l)
+                   
 
     def pop(self):
         if self.empty():
