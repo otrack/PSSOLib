@@ -237,7 +237,7 @@ class Stack():
     def pop(self):
         print >> sys.stderr, "POP IN"
         if self.empty():
-            print >> sys.stderr, "POP OUT"
+            print >> sys.stderr, "POP OUT "+"(empty)"
             return None
         while True:
             head = self.head.get()
