@@ -218,18 +218,20 @@ class Stack():
         m.update(e)        
         k = uuid.UUID(m.hexdigest())
         self.REGISTER.insert(k,{'c':e})
+        print "data inserted"
 
         # 2 - update head
         while True:
             head = self.head.get()
-            print "HEAD "+head
             m = md5.new()
             c = str(k)+":"+str(head)
             m.update(c)
             l = uuid.UUID(m.hexdigest())
             self.REGISTER.insert(l,{'c':c})
+            print "data inserted 2"
             if self.head.compareandswap(head,str(l)) == True:
                 return
+            print "cas passed"
             self.REGISTER.remove(l)
 
     def pop(self):
@@ -240,7 +242,7 @@ class Stack():
             try:
                 c = self.REGISTER.get(uuid.UUID(head))['c']
             except NotFoundException:
-                # FIXME
+                print "DEBUG "+c
                 return None
             if self.head.compareandswap(head,c.rsplit(":")[1]) == True:
                 r = self.REGISTER.get(uuid.UUID(c.rsplit(":")[0]))['c']
