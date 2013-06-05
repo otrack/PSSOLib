@@ -154,7 +154,7 @@ class Crawler(object):
             this_url = s.pop()
             time.sleep(100*0.001)
             if this_url == None:
-                continue
+                break
             
             #Non-URL-specific filter: Discard anything over depth limit
             depth = depth + 1
