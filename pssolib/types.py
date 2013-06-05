@@ -242,7 +242,6 @@ class Stack():
             try:
                 c = self.REGISTER.get(uuid.UUID(head))['c']
             except NotFoundException:
-                print "DEBUG "+c
                 return None
             if self.head.compareandswap(head,c.rsplit(":")[1]) == True:
                 r = self.REGISTER.get(uuid.UUID(c.rsplit(":")[0]))['c']
