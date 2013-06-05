@@ -213,6 +213,7 @@ class Stack():
         
     def push(self,e):
 
+        print >> sys.stderr, "PUSH IN"
         # 1 - insert data
         m = md5.new()
         m.update(e)        
@@ -228,23 +229,29 @@ class Stack():
             l = uuid.UUID(m.hexdigest())
             self.REGISTER.insert(l,{'c':c})
             if self.head.compareandswap(head,str(l)) == True:
+                print >> sys.stderr, "PUSH OUT"
                 return
             self.REGISTER.remove(l)
                    
 
     def pop(self):
+        print >> sys.stderr, "PUSH IN"
         if self.empty():
+            print >> sys.stderr, "PUSH OUT"
             return None
         while True:
             head = self.head.get()
             try:
                 c = self.REGISTER.get(uuid.UUID(head))['c']
             except NotFoundException:
+                print >> sys.stderr, "PUSH OUT"
                 return None
             if self.head.compareandswap(head,c.rsplit(":")[1]) == True:
                 r = self.REGISTER.get(uuid.UUID(c.rsplit(":")[0]))['c']
                 if r == "0":
+                    print >> sys.stderr, "PUSH OUT"
                     return None
+                print >> sys.stderr, "PUSH OUT"
                 return r
 
     def empty(self):
