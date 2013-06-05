@@ -71,7 +71,6 @@ class Consensus():
         self.key = key
         self.pid = get_thread_ident()
         self.CONSENSUS = Config.get().CONSENSUS
-        # FIXME
         m = md5.new()
         m.update(str(key))
         self.R = NaturalRacing(uuid.UUID(m.hexdigest()),"WeakAdoptCommit")
@@ -86,7 +85,7 @@ class Consensus():
             u = r[0]
             if r[1] == 'COMMIT':
                 self.CONSENSUS.insert(self.key,{'d':u})
-                print str(self.key)+" decision "+u
+                # print str(self.key)+" decision "+u
                 return u
 
             try:
@@ -98,7 +97,7 @@ class Consensus():
     def decision(self):
         try:
             d = self.CONSENSUS.get(self.key,columns=['d'])['d']
-            print str(self.key)+" decision "+d
+            # print str(self.key)+" decision "+d
             return d
         except NotFoundException:
             return None
@@ -140,12 +139,18 @@ class Cas():
         
             self.C = self.R.enter(self.pid)
 
-    # def get(self):
-    #     C = self.R.enter(self.pid)
-    #     if C.decision() != None:
-    #         self.last = C.decision().rsplit(":",1)
-    #     return self.last[0]
+    def get(self):
+        while True:
+            if self.C == None:
+                self.C = self.R.enter(self.pid)
 
+            decision = self.C.decision()
+            if decision == None:
+                return self.last[0]
+            else:
+                self.last = decision.rsplit(":",1)
+                self.C = self.R.enter(self.pid)
+            
 class Spinlock():
 
     def __init__(self,lockid):
@@ -197,6 +202,55 @@ class Map():
 
     def valueset(self):
         return self.toOrderedDict().valueset()
+
+
+class Stack():
+
+    def __init__(self,id):
+        self.id = id
+        self.head = Cas(self.id,str(0))
+        self.REGISTER = Config.get().REGISTER
+        
+    def push(self,e):
+
+        # 1 - insert data
+        m = md5.new()
+        m.update(e)        
+        k = uuid.UUID(m.hexdigest())
+        self.REGISTER.insert(k,{'c':e})
+
+        # 2 - update head
+        while True:
+            head = self.head.get()
+            # print "HEAD "+head
+            m = md5.new()
+            c = str(k)+":"+str(head)
+            m.update(c)
+            l = uuid.UUID(m.hexdigest())
+            self.REGISTER.insert(l,{'c':c})
+            if self.head.compareandswap(head,str(l)) == True:
+                return
+            self.REGISTER.remove(l)
+
+    def pop(self):
+        if self.empty():
+            return None
+        while True:
+            head = self.head.get()
+            try:
+                c = self.REGISTER.get(uuid.UUID(head))['c']
+            except NotFoundException:
+                # FIXME
+                return None
+            if self.head.compareandswap(head,c.rsplit(":")[1]) == True:
+                r = self.REGISTER.get(uuid.UUID(c.rsplit(":")[0]))['c']
+                if r == "0":
+                    return None
+                return r
+
+    def empty(self):
+        return self.head.get() == "0"
+    
 
 #############################
 # Racing
@@ -252,6 +306,6 @@ class NaturalRacing(Racing):
 
         self.last = m
 
-        print "entering "+self.class_name+"#"+str(uuid_add(self.key,m))
+        # print "entering "+self.class_name+"#"+str(uuid_add(self.key,m))
         return self.newinstance(uuid_add(self.key,m))
     

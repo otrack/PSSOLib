@@ -49,12 +49,19 @@ class Config():
             else:
                 replication_factor = '3'
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor})
+            self.SYSM.create_column_family(self.KEYSPACE, 'register')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
             self.SYSM.create_column_family(self.KEYSPACE, 'splitter')
             self.SYSM.create_column_family(self.KEYSPACE, 'wac')
             self.SYSM.create_column_family(self.KEYSPACE, 'consensus')
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
+
+        self.REGISTER = ColumnFamily(self.POOL, 'register')
+        self.REGISTER.read_consistency_level = ConsistencyLevel.QUORUM
+        self.REGISTER.write_consistency_level = ConsistencyLevel.QUORUM
+        self.REGISTER.key_validation_class = LexicalUUIDType()
+        self.REGISTER.column_name_class = AsciiType()
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
