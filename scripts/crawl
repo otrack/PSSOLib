@@ -174,7 +174,9 @@ class Crawler(object):
                     self.visited_links.add(this_url)
                     self.num_followed += 1
                     page = Fetcher(this_url)
+                    print >> sys.stderr, str(get_thread_ident())+" fetching "+this_url
                     page.fetch()
+                    print >> sys.stderr, str(get_thread_ident())+ this_url+" fetched"
                     for link_url in [self._pre_visit_url_condense(l) for l in page.out_links()]:
                         if link_url not in self.urls_seen:
 
