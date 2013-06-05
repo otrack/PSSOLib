@@ -145,7 +145,7 @@ class Crawler(object):
             stacks[i] = Stack(uuid.UUID(m.hexdigest()))
             if i == get_thread_ident()%int(parser.get("main","ncrawlers")):
                 s = stacks[i]
-                print "Got stacks["+str(i)+"]"
+                print >> sys.stderr, "Got stacks["+str(i)+"]"
                 
         depth = 0
         s.push(self.root)
@@ -182,7 +182,7 @@ class Crawler(object):
                             for c in link_url:
                                 checksum = ord(c)
                             checksum = checksum % int(parser.get("main","ncrawlers"))
-                            print "I push "+link_url+" to stacks["+str(checksum)+"]"
+                            print >> sys.stderr, "I push "+link_url+" to stacks["+str(checksum)+"]"
                             stacks[checksum].push(link_url)
                             self.urls_seen.add(link_url)
                             
