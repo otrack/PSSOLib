@@ -222,7 +222,7 @@ class Stack():
         # 2 - update head
         while True:
             head = self.head.get()
-            # print "HEAD "+head
+            print "HEAD "+head
             m = md5.new()
             c = str(k)+":"+str(head)
             m.update(c)

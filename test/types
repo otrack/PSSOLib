@@ -15,7 +15,7 @@ parser = ConfigParser.ConfigParser()
 parser.add_section("main")
 parser.set("main","servers",sys.argv[1])
 parser.set("main","keyspace",sys.argv[2])
-cfg = Config.create(parser,True)
+Config.create(parser,True)
 
 # Run some tests
 id1=uuid.UUID("de33e26e-8f56-13e2-9bbe-606720d66784")
@@ -31,15 +31,22 @@ id2=uuid.uuid4()
 # c = Consensus(id1)
 # print c.propose("bonjour")
 
-cas = Cas(id2,"")
-print cas.compareandswap("","hello")
-print cas.compareandswap("","Goodbye")
-print cas.compareandswap("Goodbye","Goodbye2")
+# cas = Cas(id2,"")
+# print cas.compareandswap("","hello")
+# print cas.compareandswap("","Goodbye")
+# print cas.compareandswap("Goodbye","Goodbye2")
 
-spin = Spinlock(id1)
+# spin = Spinlock(id1)
+# spin.lock()
+# print "LOCKED"
+# spin.unlock()
+# print "UNLOCKED"
+
+stack = Stack(id2)
+assert stack.empty() == True
 while True:
-    spin.lock()
-    print "LOCKED"
-    spin.unlock()
-    print "UNLOCKED"
-
+    stack.push("test1")
+    stack.push("test2")
+    stack.push("test3")
+    stack.push("test4")
+    print stack.pop()+" < "+stack.pop()+" < "+stack.pop()+" < "+stack.pop()
