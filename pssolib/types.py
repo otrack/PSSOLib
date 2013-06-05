@@ -218,7 +218,6 @@ class Stack():
         m.update(e)        
         k = uuid.UUID(m.hexdigest())
         self.REGISTER.insert(k,{'c':e})
-        print "data inserted"
 
         # 2 - update head
         while True:
@@ -228,10 +227,8 @@ class Stack():
             m.update(c)
             l = uuid.UUID(m.hexdigest())
             self.REGISTER.insert(l,{'c':c})
-            print "data inserted 2"
             if self.head.compareandswap(head,str(l)) == True:
                 return
-            print "cas passed"
             self.REGISTER.remove(l)
 
     def pop(self):
