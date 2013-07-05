@@ -2,5 +2,13 @@ PSSOLib
 =======
 
 A Python library of Practically Scalable Shared Objects.
-In Alpha stage, written in python, it currently supports only Apache Cassandra.
-Additional details are available in bib/paper.pdf.
+It currently support Apache Cassandra.
+The object implemented in the library are: 
+compare-and-swap,
+spinlock,
+stack,
+mapping,
+consensus
+and a few esoterical objects.
+
+A detail explanation of the content of the library is  given in bib/paper.pdf.
