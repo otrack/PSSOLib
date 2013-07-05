@@ -315,3 +315,4 @@ class NaturalRacing(Racing):
         # print "entering "+self.class_name+"#"+str(uuid_add(self.key,m))
         return self.newinstance(uuid_add(self.key,m))
     
+

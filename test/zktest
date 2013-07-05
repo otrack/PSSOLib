@@ -17,3 +17,4 @@ while True:
     print "Locked!"
     z.release()
     print "Unlocked!"
+

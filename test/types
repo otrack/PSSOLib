@@ -50,3 +50,4 @@ while True:
     stack.push("test3")
     stack.push("test4")
     print stack.pop()+" < "+stack.pop()+" < "+stack.pop()+" < "+stack.pop()
+
