@@ -24,10 +24,6 @@ parser.readfp(open('default.cfg'))
 Config.create(parser,False)
 
 __version__ = "0.2"
-__copyright__ = "CopyRight (C) 2008-2011 by James Mills"
-__license__ = "MIT"
-__author__ = "James Mills"
-__author_email__ = "James Mills, James dot Mills st dotred dot com dot au"
 
 USAGE = "%prog [options] <url>"
 VERSION = "%prog v" + __version__
