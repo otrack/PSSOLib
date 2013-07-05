@@ -1,0 +1,1 @@
+grep True /tmp/exp/* | awk -F: '{print }' | sort|wc -l
