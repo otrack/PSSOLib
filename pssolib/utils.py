@@ -16,6 +16,7 @@ from pycassa.types import *
 from pycassa.system_manager import *
 from pycassa.cassandra.ttypes import InvalidRequestException, ConsistencyLevel
 from random import choice
+from types import *
 
 class Config():
 
@@ -29,6 +30,21 @@ class Config():
     def create(cls,parser,init):
         cls._instance = cls(parser,init)
 
+    def createComlumnFamily(cfname,cfdef):
+        cf = ColumnFamily(self.POOL, cfname,)
+        cf.read_consistency_level = ConsistencyLevel.QUORUM
+        cf.write_consistency_level = ConsistencyLevel.QUORUM
+        cf.key_validation_class = AsciiType()
+        cf.column_name_class = AsciiType()
+        for k,v in cfdef.iteritems():
+            if type(v) is IntType:
+                cf.column_validators[k] = IntegerType()
+            elif type(v) is BooleanType:
+                cf.column_validators[k] = BooleanType()
+            elif type(v) is  StringType:
+                cf.column_validators[k] = AsciiType()
+        return cf
+
     def __init__(self,parser,init):
 
         # 1 - read the config parser
@@ -36,7 +52,7 @@ class Config():
         self.SERVERS = parser.get("main","servers").split(",")
         self.SYSM = SystemManager(choice(self.SERVERS))
         self.KEYSPACE = parser.get("main","keyspace")        
-
+        
         # 2 - get or create the keyspace and the column families for each object
 
         if init or ((self.KEYSPACE in self.SYSM.list_keyspaces())!=True) :
@@ -57,25 +73,25 @@ class Config():
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
-        self.REGISTER = ColumnFamily(self.POOL, 'register')
+        self.REGISTER = ColumnFamily(self.POOL, 'register',)
         self.REGISTER.read_consistency_level = ConsistencyLevel.QUORUM
         self.REGISTER.write_consistency_level = ConsistencyLevel.QUORUM
         self.REGISTER.key_validation_class = LexicalUUIDType()
         self.REGISTER.column_name_class = AsciiType()
+
+        self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
+        self.SPLITTER.read_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTER.write_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTER.key_validation_class = LexicalUUIDType()
+        self.SPLITTER.column_name_class = AsciiType()
+        self.SPLITTER.column_validators['x'] = IntegerType() # PID
+        self.SPLITTER.column_validators['y'] = BooleanType() # boolean
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.write_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
-
-        self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
-        self.SPLITTER.read_consistency_level = ConsistencyLevel.QUORUM   
-        self.SPLITTER.write_consistency_level = ConsistencyLevel.QUORUM    
-        self.SPLITTER.key_validation_class = LexicalUUIDType()
-        self.SPLITTER.column_name_class = AsciiType()
-        self.SPLITTER.column_validators['x'] = IntegerType() # PID
-        self.SPLITTER.column_validators['y'] = BooleanType() # boolean
 
         self.WAC = ColumnFamily(self.POOL, 'wac')
         self.WAC.read_consistency_level = ConsistencyLevel.QUORUM  
@@ -97,11 +113,17 @@ class Config():
 ##############################
 
 import binascii, string
-import uuid
+import uuid, md5
 
 # Use snowflacke for generating UUID ?
 
 # FIXME
+
+def random_uuid(s):
+    md = md5.new()
+    md.update(s)
+    return uuid.UUID(md.hexdigest())
+
 
 # This function takes as argument an hex and increments it modulo its lenght.
 # The result is a pair where the first element is the incremented element, 
