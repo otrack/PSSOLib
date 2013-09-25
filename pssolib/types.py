@@ -34,6 +34,7 @@ class Register():
             pass
         return self.initValue
 
+# cost = 4
 class Splitter():
 
     def __init__(self,key,ts=0):
@@ -59,6 +60,7 @@ class Splitter():
         
         return True
 
+# cost = 6
 class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
@@ -75,9 +77,8 @@ class WeakAdoptCommit():
  
         if self.splitter.split()==False :
             self.c.write({'c':True})
-
-        d = self.d.read()['d']
-        if d == None:
+            d = self.d.read()['d']
+        else
             d = u
             self.d.write({'d':u})
         
@@ -146,6 +147,7 @@ class BoundedRacing(Racing):
 # Complex concurrent objects #
 ##############################
 
+# cost = 7
 class Consensus():
 
     def __init__(self,key,ts=0):
@@ -167,6 +169,7 @@ class Consensus():
         return self.d.read()['d']
 
 
+# cost = 9
 class Cas():
 
     def __init__(self,key,init):
