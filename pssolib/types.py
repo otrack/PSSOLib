@@ -78,7 +78,7 @@ class WeakAdoptCommit():
         if self.splitter.split()==False :
             self.c.write({'c':True})
             d = self.d.read()['d']
-        else
+        else:
             d = u
             self.d.write({'d':u})
         
