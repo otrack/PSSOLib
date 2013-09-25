@@ -2,7 +2,9 @@ import uuid, nanotime, time, uuid, random, sys
 
 from pssolib.utils import *
 
-# FIXME initialization phase to skip the objects creation in Cassandra.
+# FIXME define a concurrent map  object 
+# FIXME (Register) enforce a single key in every value
+# FIXME (Cas) backslash the ":" separator 
 
 ######################################
 # Base concurrent recyclable objects #
@@ -11,14 +13,13 @@ from pssolib.utils import *
 class Register():
 
     def __init__(self,columnFamily,initValue,key,ts=0):
-        # FIXME a single key in initValue keyset
+
         self.key = key
         self.columnFamily = columnFamily
         self.initValue = initValue
         self.ts = ts
         
     def write(self,val):
-        # FIXME a single key in initValue keyset
         val['ts'] = str(self.ts)
         self.columnFamily.insert(self.key,val)
         
@@ -27,7 +28,6 @@ class Register():
             val = self.columnFamily.get(self.key)
             if int(val['ts']) >= self.ts:
                 del val['ts']
-                # FIXME check a single key
                 return val
         except NotFoundException:
             pass
@@ -43,8 +43,8 @@ class Splitter():
 
     def split(self):
 
-        # if self.x.read()['x'] != None:
-        #     return False
+        if self.x.read()['x'] != None:
+            return False
 
         self.x.write({'x':self.pid})
 
@@ -64,13 +64,13 @@ class WeakAdoptCommit():
         self.splitter = Splitter(key,ts)        
         self.d = Register(Config.get().WACD,{'d':None},key,ts)
         self.c = Register(Config.get().WACC,{'c':False},key,ts)
-        print "WAC("+str(ts)+")"+str(key)
+        # print "WAC("+str(ts)+")"+str(key)
 
     def adoptCommit(self,u):
 
-        # d = self.d.read()['d']
-        # if d != None:
-        #     return (d,'ADOPT')
+        d = self.d.read()['d']
+        if d != None:
+            return (d,'ADOPT')
  
         if self.splitter.split()==False :
             self.c.write({'c':True})
@@ -105,7 +105,7 @@ class Racing():
         class_ = getattr(module, self.class_name)
         return class_(k,ts)
 
-class NaturalRacing(Racing):
+class UnboundedRacing(Racing):
 
     def __init__(self,key,class_name,ts=0):
         Racing.__init__(self,class_name)
@@ -150,13 +150,13 @@ class Consensus():
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
-        self.R = NaturalRacing(key,"WeakAdoptCommit",ts)
-        print "CONS("+str(ts)+")"+str(key)
+        self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
+        # print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
         while True:
-            # if self.d.read()['d'] != None:
-            #     return d
+            if self.d.read()['d'] != None:
+                return d
             r = self.R.enter(self.pid).adoptCommit(u)
             if r[1] == 'COMMIT':
                 self.d.write({'d':r[0]})
@@ -172,35 +172,20 @@ class Cas():
         self.key = key
         self.pid = get_thread_ident()
         self.R = BoundedRacing(key,"Consensus")
-        self.C = None
-        self.last = [init,str(self.pid)]
- 
+        self.C = self.R.enter(self.pid)
+        self.last = init
+
     def compareandswap(self,u,v):
-        # one can optimize this ...
         while True:
-
-            if self.C == None:
-                self.C = self.R.enter(self.pid)
-
             decision = self.C.decision()
-            # print "D:"+str(decision)
             if decision == None:
-                
-                if self.last[0] != u:
-                    # print "failed with "+str(self.last)+" "+u+";"+v
-                    return False;
-            
+                if self.last != u:
+                    return False; 
                 decision = self.C.propose(v+":"+str(self.pid))
-                assert decision != None
-                
-                if decision.rsplit(":",1)[1] == str(self.pid):
-                    return True
-                
-                if decision.rsplit(":",1)[0] != u:
+                self.last = decision.rsplit(":")[0]
+                if decision.rsplit(":")[1] != str(self.pid):
                     return False
-                
-            self.last = decision.rsplit(":",1)
-        
+                return True                
             self.C = self.R.enter(self.pid)
 
     def get(self):
