@@ -63,7 +63,7 @@ class WeakAdoptCommit():
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key)        
         self.snap = Snapshot(Config.get().WAC,{'d':None,'c':False},key,ts)
-        print "WAC"+str(key)
+        print "WAC("+str(ts)+")"+str(key)
 
     def adoptCommit(self,u):
 
@@ -151,7 +151,7 @@ class Consensus():
         self.pid = get_thread_ident()
         self.snap = Snapshot(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = NaturalRacing(key,"WeakAdoptCommit",ts)
-        print "CONS"+str(key)
+        print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
         while True:
