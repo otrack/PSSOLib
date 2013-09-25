@@ -8,32 +8,26 @@ from pssolib.utils import *
 # Base concurrent recyclable objects #
 ######################################
 
-class Snapshot():
+class Register():
 
     def __init__(self,columnFamily,initValue,key,ts=0):
-        # FIXME check no key named 'ts'
+        # FIXME a single key in initValue keyset
         self.key = key
         self.columnFamily = columnFamily
         self.initValue = initValue
         self.ts = ts
         
     def write(self,val):
-        # FIXME keys sat. init val. def. 
-        val['ts']=str(self.ts)
-        for k,v in self.initValue.iteritems():
-            if k not in val :
-                val[k]=self.initValue[k]
+        # FIXME a single key in initValue keyset
+        val['ts'] = str(self.ts)
         self.columnFamily.insert(self.key,val)
         
     def read(self):
         try:
             val = self.columnFamily.get(self.key)
-            print str(self.ts)+" => "+str(val)
             if int(val['ts']) >= self.ts:
                 del val['ts']
-                for k,v in self.initValue.iteritems():
-                    if k not in val :
-                        val[k]=self.initValue[k]
+                # FIXME check a single key
                 return val
         except NotFoundException:
             pass
@@ -42,24 +36,24 @@ class Snapshot():
 class Splitter():
 
     def __init__(self,key,ts=0):
-        self.ts = ts
         self.pid = get_thread_ident()
-        self.snap = Snapshot(Config.get().SPLITTER,{'x':None,'y':False},key,self.ts)
+        self.x = Register(Config.get().SPLITTERX,{'x':None},key,ts)
+        self.y = Register(Config.get().SPLITTERY,{'y':False},key,ts)
         # print str(key)+":"+str(ts)
 
     def split(self):
 
-        if self.snap.read()['x'] != None:
+        if self.x.read()['x'] != None:
             return False
 
-        self.snap.write({'x':self.pid})
+        self.x.write({'x':self.pid})
 
-        if self.snap.read()['y'] != False:
+        if self.y.read()['y'] != False:
             return False
 
-        self.snap.write({'y':True})
+        self.y.write({'y':True})
         
-        if self.snap.read()['x'] != self.pid:
+        if self.x.read()['x'] != self.pid:
             return False        
         
         return True
@@ -68,27 +62,27 @@ class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key,ts)        
-        self.snap = Snapshot(Config.get().WAC,{'d':None,'c':False},key,ts)
+        self.d = Register(Config.get().WACD,{'d':None},key,ts)
+        self.c = Register(Config.get().WACC,{'c':False},key,ts)
         print "WAC("+str(ts)+")"+str(key)
 
     def adoptCommit(self,u):
 
-        d = self.snap.read()['d']
+        d = self.d.read()['d']
         if d != None:
             return (d,'ADOPT')
 
         if self.splitter.split()==False :
-            self.snap.write({'c':True})
+            self.c.write({'c':True})
 
-        d = self.snap.read()['d']
+        d = self.d.read()['d']
         if d == None:
-            self.snap.write({'d':u})
+            self.d.write({'d':u})
         
-        s = self.snap.read()
-        c = s['c']
-        d = s['d']
+        c = self.c.read()['c']
+        d = self.d.read()['d']
         if c == True:
-            return (s,'ADOPT')
+            return (d,'ADOPT')
         return (d,'COMMIT')
 
 ##################
@@ -117,7 +111,7 @@ class NaturalRacing(Racing):
         Racing.__init__(self,class_name)
         self.last = 0
         self.key = key
-        self.snap = Snapshot(Config.get().MAP,dict(),key,ts)
+        self.snap = Register(Config.get().MAP,dict(),key,ts)
         self.ts = ts
 
     def enter(self,pid):
@@ -141,7 +135,7 @@ class BoundedRacing(Racing):
         Racing.__init__(self,class_name)
         self.ts = 0
         self.key = key
-        self.snap = Snapshot(Config.get().MAP,dict(),key)
+        self.snap = Register(Config.get().MAP,dict(),key)
 
     def enter(self,pid):
         self.ts+=1
@@ -155,7 +149,7 @@ class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.snap = Snapshot(Config.get().CONSENSUS,{'d':None},key,ts)
+        self.snap = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = NaturalRacing(key,"WeakAdoptCommit",ts)
         print "CONS("+str(ts)+")"+str(key)
 

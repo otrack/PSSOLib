@@ -67,25 +67,38 @@ class Config():
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor})
             self.SYSM.create_column_family(self.KEYSPACE, 'register')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
-            self.SYSM.create_column_family(self.KEYSPACE, 'splitter')
-            self.SYSM.create_column_family(self.KEYSPACE, 'wac')
+            self.SYSM.create_column_family(self.KEYSPACE, 'splitterx')
+            self.SYSM.create_column_family(self.KEYSPACE, 'splittery')
+            self.SYSM.create_column_family(self.KEYSPACE, 'wacc')
+            self.SYSM.create_column_family(self.KEYSPACE, 'wacd')
             self.SYSM.create_column_family(self.KEYSPACE, 'consensus')
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
-        self.REGISTER = ColumnFamily(self.POOL, 'register',)
-        self.REGISTER.read_consistency_level = ConsistencyLevel.QUORUM
-        self.REGISTER.write_consistency_level = ConsistencyLevel.QUORUM
-        self.REGISTER.key_validation_class = LexicalUUIDType()
-        self.REGISTER.column_name_class = AsciiType()
+        self.SPLITTERX = ColumnFamily(self.POOL, 'splitterx')
+        self.SPLITTERX.read_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTERX.write_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTERX.key_validation_class = LexicalUUIDType()
+        self.SPLITTERX.column_name_class = AsciiType()
+        self.SPLITTERX.column_validators['x'] = IntegerType() # PID
+        self.SPLITTERY = ColumnFamily(self.POOL, 'splittery')
+        self.SPLITTERY.read_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTERY.write_consistency_level = ConsistencyLevel.QUORUM
+        self.SPLITTERY.key_validation_class = LexicalUUIDType()
+        self.SPLITTERY.column_name_class = AsciiType()
+        self.SPLITTERY.column_validators['y'] = BooleanType() # boolean
 
-        self.SPLITTER = ColumnFamily(self.POOL, 'splitter')
-        self.SPLITTER.read_consistency_level = ConsistencyLevel.QUORUM
-        self.SPLITTER.write_consistency_level = ConsistencyLevel.QUORUM
-        self.SPLITTER.key_validation_class = LexicalUUIDType()
-        self.SPLITTER.column_name_class = AsciiType()
-        self.SPLITTER.column_validators['x'] = IntegerType() # PID
-        self.SPLITTER.column_validators['y'] = BooleanType() # boolean
+        self.WACD = ColumnFamily(self.POOL, 'wacd')
+        self.WACD.read_consistency_level = ConsistencyLevel.QUORUM  
+        self.WACD.write_consistency_level = ConsistencyLevel.QUORUM    
+        self.WACD.key_validation_class = LexicalUUIDType()
+        self.WACD.column_name_class = AsciiType() 
+        self.WACD.column_validators['c'] = IntegerType() # Conflict flag
+        self.WACC = ColumnFamily(self.POOL, 'wacc')
+        self.WACC.read_consistency_level = ConsistencyLevel.QUORUM  
+        self.WACC.write_consistency_level = ConsistencyLevel.QUORUM    
+        self.WACC.key_validation_class = LexicalUUIDType()
+        self.WACC.column_name_class = AsciiType() 
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
@@ -93,20 +106,18 @@ class Config():
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
 
-        self.WAC = ColumnFamily(self.POOL, 'wac')
-        self.WAC.read_consistency_level = ConsistencyLevel.QUORUM  
-        self.WAC.write_consistency_level = ConsistencyLevel.QUORUM    
-        self.WAC.key_validation_class = LexicalUUIDType()
-        self.WAC.column_name_class = AsciiType() 
-        self.WAC.column_validators['c'] = IntegerType() # Conflict flag
-        # CONSENSUS.column_validators['d'] = BytesType() # Weak adopt-commit value
-
         self.CONSENSUS = ColumnFamily(self.POOL, 'consensus')
         self.CONSENSUS.read_consistency_level = ConsistencyLevel.QUORUM
         self.CONSENSUS.write_consistency_level = ConsistencyLevel.QUORUM    
         self.CONSENSUS.key_validation_class = LexicalUUIDType()
         self.CONSENSUS.column_name_class = AsciiType() 
         # CONSENSUS.column_validators['v'] = BytesType() # Consensus value
+
+        self.REGISTER = ColumnFamily(self.POOL, 'register',)
+        self.REGISTER.read_consistency_level = ConsistencyLevel.QUORUM
+        self.REGISTER.write_consistency_level = ConsistencyLevel.QUORUM
+        self.REGISTER.key_validation_class = LexicalUUIDType()
+        self.REGISTER.column_name_class = AsciiType()
         
 #############################
 # UUID 
