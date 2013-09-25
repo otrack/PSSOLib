@@ -23,7 +23,7 @@ class Snapshot():
     def read(self):
         try:
             val = self.columnFamily.get(self.key)
-            print val
+            print self.ts" => "+str(val)
             if int(val['ts']) >= self.ts:
                 del val['ts']
                 for k,v in self.initValue.iteritems():
