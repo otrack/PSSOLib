@@ -17,6 +17,7 @@ class Snapshot():
         self.ts = ts
         
     def write(self,val):
+        # FIXME check no key named 'ts'
         val['ts']=str(self.ts)
         self.columnFamily.insert(self.key,val)
         
@@ -62,7 +63,7 @@ class Splitter():
 class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
-        self.splitter = Splitter(key)        
+        self.splitter = Splitter(key,ts)        
         self.snap = Snapshot(Config.get().WAC,{'d':None,'c':False},key,ts)
         print "WAC("+str(ts)+")"+str(key)
 
