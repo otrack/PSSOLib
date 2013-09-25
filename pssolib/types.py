@@ -23,12 +23,12 @@ class Snapshot():
     def read(self):
         try:
             val = self.columnFamily.get(self.key)
+            print val
             if int(val['ts']) >= self.ts:
                 del val['ts']
                 for k,v in self.initValue.iteritems():
                     if k not in val :
                         val[k]=self.initValue[k]
-                print val
                 return val
         except NotFoundException:
             pass
