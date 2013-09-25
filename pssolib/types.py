@@ -149,21 +149,21 @@ class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.snap = Register(Config.get().CONSENSUS,{'d':None},key,ts)
+        self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = NaturalRacing(key,"WeakAdoptCommit",ts)
         print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
         while True:
-            if self.snap.read()['d'] != None:
+            if self.d.read()['d'] != None:
                 return d
             r = self.R.enter(self.pid).adoptCommit(u)
             if r[1] == 'COMMIT':
-                self.snap.write({'d':r[0]})
+                self.d.write({'d':r[0]})
                 return r[0]
 
     def decision(self):
-        return self.snap.read()['d']
+        return self.d.read()['d']
 
 
 class Cas():
@@ -171,7 +171,7 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.R = BoundedRacing(key,"Consensus")
+        self.R = NaturalRacing(key,"Consensus")
         self.C = None
         self.last = [init,str(self.pid)]
  
