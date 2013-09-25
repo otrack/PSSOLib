@@ -155,8 +155,8 @@ class Consensus():
 
     def propose(self,u):
         while True:
-            if self.d.read()['d'] != None:
-                return d
+            # if self.d.read()['d'] != None:
+            #     return d
             r = self.R.enter(self.pid).adoptCommit(u)
             if r[1] == 'COMMIT':
                 self.d.write({'d':r[0]})
@@ -171,7 +171,7 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.R = NaturalRacing(key,"Consensus")
+        self.R = BoundedRacing(key,"Consensus")
         self.C = None
         self.last = [init,str(self.pid)]
  
