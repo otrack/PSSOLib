@@ -2,7 +2,7 @@
 
 bc=`which bc`
 EXP_TMP_DIR=/tmp/exp
-N_IT=1000
+N_IT=5000
 
 function absolute(){
     awk ' { if($1>=0) { print $1} else {print $1*-1 }}'
@@ -21,18 +21,12 @@ if [ ! -e ${EXP_TMP_DIR} ]
 then
     mkdir ${EXP_TMP_DIR}
 fi
-# if [[ $1 == 'P' ]]
-# then
-#     ./clean $3 "access"
-#     wait
-#     sleep 5
-# fi
 
 # 2 - Launch experiments
 
 client_min=1
 client_max=1
-client_incr=10
+client_incr=1
 
 nap_min=0
 nap_max=0
@@ -47,9 +41,9 @@ do
     do
 
         # 2.1 - Run an  experiment	
+	objectid=`uuidgen`
 	for i in `seq 1 ${nclients}` 
 	do
-	    objectid=`uuidgen`
 	    ./access $1 $2 $3 ${objectid} ${N_IT} ${nap} &> ${EXP_TMP_DIR}/$i &
 	done
 	wait 

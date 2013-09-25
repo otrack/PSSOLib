@@ -13,6 +13,6 @@ import timeit
 parser = ConfigParser.ConfigParser()
 parser.add_section("main")
 parser.set("main","servers",sys.argv[1])
-parser.set("main","keyspace",sys.argv[2])
+parser.set("main","keyspace","access")
 cfg = Config.create(parser,True)
 
