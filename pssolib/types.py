@@ -67,7 +67,7 @@ class WeakAdoptCommit():
         print "WAC("+str(ts)+")"+str(key)
 
     def adoptCommit(self,u):
-
+        return (u,'COMMIT')
         d = self.d.read()['d']
         if d != None:
             return (d,'ADOPT')
@@ -154,7 +154,6 @@ class Consensus():
         print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
-        return u
         while True:
             if self.snap.read()['d'] != None:
                 return d
