@@ -71,16 +71,16 @@ class WeakAdoptCommit():
         # d = self.d.read()['d']
         # if d != None:
         #     return (d,'ADOPT')
-
+ 
         if self.splitter.split()==False :
             self.c.write({'c':True})
 
         d = self.d.read()['d']
         if d == None:
+            d = u
             self.d.write({'d':u})
         
         c = self.c.read()['c']
-        d = self.d.read()['d']
         if c == True:
             return (d,'ADOPT')
         return (d,'COMMIT')
@@ -192,7 +192,7 @@ class Cas():
             
                 decision = self.C.propose(v+":"+str(self.pid))
                 assert decision != None
-            
+                
                 if decision.rsplit(":",1)[1] == str(self.pid):
                     return True
                 
