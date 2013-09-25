@@ -11,14 +11,18 @@ from pssolib.utils import *
 class Snapshot():
 
     def __init__(self,columnFamily,initValue,key,ts=0):
+        # FIXME check no key named 'ts'
         self.key = key
         self.columnFamily = columnFamily
         self.initValue = initValue
         self.ts = ts
         
     def write(self,val):
-        # FIXME check no key named 'ts'
+        # FIXME keys sat. init val. def. 
         val['ts']=str(self.ts)
+        for k,v in self.initValue.iteritems():
+            if k not in val :
+                val[k]=self.initValue[k]
         self.columnFamily.insert(self.key,val)
         
     def read(self):
