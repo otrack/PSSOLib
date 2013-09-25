@@ -28,6 +28,7 @@ class Snapshot():
                 for k,v in self.initValue.iteritems():
                     if k not in val :
                         val[k]=self.initValue[k]
+                print val
                 return val
         except NotFoundException:
             pass
