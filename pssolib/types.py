@@ -5,6 +5,7 @@ from pssolib.utils import *
 # FIXME define a concurrent map  object 
 # FIXME (Register) enforce a single key in every value
 # FIXME (Cas) backslash the ":" separator 
+# FIXME Cas and consensus not localy concurrent objects
 
 ######################################
 # Base concurrent recyclable objects #
@@ -43,8 +44,8 @@ class Splitter():
 
     def split(self):
 
-        if self.x.read()['x'] != None:
-            return False
+        # if self.x.read()['x'] != None:
+        #     return False
 
         self.x.write({'x':self.pid})
 
@@ -68,9 +69,9 @@ class WeakAdoptCommit():
 
     def adoptCommit(self,u):
 
-        d = self.d.read()['d']
-        if d != None:
-            return (d,'ADOPT')
+        # d = self.d.read()['d']
+        # if d != None:
+        #     return (d,'ADOPT')
  
         if self.splitter.split()==False :
             self.c.write({'c':True})
@@ -155,8 +156,8 @@ class Consensus():
 
     def propose(self,u):
         while True:
-            if self.d.read()['d'] != None:
-                return d
+            # if self.d.read()['d'] != None:
+            #     return d
             r = self.R.enter(self.pid).adoptCommit(u)
             if r[1] == 'COMMIT':
                 self.d.write({'d':r[0]})
@@ -190,15 +191,12 @@ class Cas():
 
     def get(self):
         while True:
-            if self.C == None:
-                self.C = self.R.enter(self.pid)
-
             decision = self.C.decision()
             if decision == None:
-                return self.last[0]
+                return self.last
             else:
-                self.last = decision.rsplit(":",1)
-                self.C = self.R.enter(self.pid)
+                self.last = decision.rsplit(":")[0]
+                self.C = self.R.enter(self.pid)                
             
 class Spinlock():
 
