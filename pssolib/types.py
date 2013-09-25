@@ -150,7 +150,7 @@ class Consensus():
         self.pid = get_thread_ident()
         self.snap = Snapshot(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = NaturalRacing(key,"WeakAdoptCommit",ts)
-        # print key
+        print key
 
     def propose(self,u):
         while True:
