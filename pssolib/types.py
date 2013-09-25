@@ -154,6 +154,7 @@ class Consensus():
         print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
+        return u
         while True:
             if self.snap.read()['d'] != None:
                 return d
