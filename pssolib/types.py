@@ -153,13 +153,14 @@ class Consensus():
         print key
 
     def propose(self,u):
-        while True:
-            if self.snap.read()['d'] != None:
-                return d
-            r = self.R.enter(self.pid).adoptCommit(u)
-            if r[1] == 'COMMIT':
-                self.snap.write({'d':r[0]})
-                return r[0]
+        return u
+        # while True:
+        #     if self.snap.read()['d'] != None:
+        #         return d
+        #     r = self.R.enter(self.pid).adoptCommit(u)
+        #     if r[1] == 'COMMIT':
+        #         self.snap.write({'d':r[0]})
+        #         return r[0]
 
     def decision(self):
         return self.snap.read()['d']
