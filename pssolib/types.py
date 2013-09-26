@@ -175,7 +175,7 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.R = UnboundedRacing(key,"Consensus")
+        self.R = BoundedRacing(key,"Consensus")
         self.C = self.R.enter(self.pid)
         self.last = init
 
