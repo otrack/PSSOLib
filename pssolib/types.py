@@ -117,19 +117,30 @@ class UnboundedRacing(Racing):
         self.ts = ts
 
     def enter(self,pid):
-        m = self.max()
-        if m == self.last:
-            m = m + 1
-        self.last = m
-        self.snap.write({str(pid):str(self.last)})        
-        return self.newinstance(random_uuid(str(uuid_add(self.key,m))),self.ts)
+        return self.go(pid,self.max())
+
+    def go(self,pid,n):
+        self.last = n
+        self.snap.write({str(pid):str(self.last)})
+        return self.newinstance(random_uuid(str(uuid_add(self.key,self.last))),self.ts)
 
     def max(self):
         m = 0
         for (k,v) in self.snap.read().iteritems():
             if int(v) > m:
                 m = int(v)
+        if m == self.last:
+            m = m + 1        
         return m
+
+    def free(self):
+        m = self.last
+        for (k,v) in self.snap.read().iteritems():
+            if int(v) < m:
+                m = int(v)
+        if m==0:
+            return self.max()
+        return m-1
 
 class BoundedRacing(Racing):
 
@@ -175,7 +186,7 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.R = BoundedRacing(key,"Consensus")
+        self.R = UnboundedRacing(key,"Consensus")
         self.C = self.R.enter(self.pid)
         self.last = init
 
@@ -185,7 +196,8 @@ class Cas():
             if decision == None:
                 if self.last != u:
                     return False; 
-                decision = self.C.propose(v+":"+str(self.pid))
+                decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free()))
+                self.R.go(self.pid,int(decision.rsplit(":")[2]))
                 self.last = decision.rsplit(":")[0]
                 if decision.rsplit(":")[1] != str(self.pid):
                     return False
