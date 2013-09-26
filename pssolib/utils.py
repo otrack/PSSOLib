@@ -81,6 +81,7 @@ class Config():
         self.SPLITTERX.key_validation_class = LexicalUUIDType()
         self.SPLITTERX.column_name_class = AsciiType()
         self.SPLITTERX.column_validators['x'] = IntegerType() # PID
+
         self.SPLITTERY = ColumnFamily(self.POOL, 'splittery')
         self.SPLITTERY.read_consistency_level = ConsistencyLevel.QUORUM
         self.SPLITTERY.write_consistency_level = ConsistencyLevel.QUORUM
@@ -93,12 +94,13 @@ class Config():
         self.WACD.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WACD.key_validation_class = LexicalUUIDType()
         self.WACD.column_name_class = AsciiType() 
+
         self.WACC = ColumnFamily(self.POOL, 'wacc')
         self.WACC.read_consistency_level = ConsistencyLevel.QUORUM  
         self.WACC.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WACC.key_validation_class = LexicalUUIDType()
         self.WACC.column_name_class = AsciiType() 
-        self.WACC.column_validators['c'] = IntegerType() # Conflict flag
+        self.WACC.column_validators['c'] = BooleanType() # Conflict flag
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
