@@ -93,12 +93,12 @@ class Config():
         self.WACD.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WACD.key_validation_class = LexicalUUIDType()
         self.WACD.column_name_class = AsciiType() 
-        self.WACD.column_validators['c'] = IntegerType() # Conflict flag
         self.WACC = ColumnFamily(self.POOL, 'wacc')
         self.WACC.read_consistency_level = ConsistencyLevel.QUORUM  
         self.WACC.write_consistency_level = ConsistencyLevel.QUORUM    
         self.WACC.key_validation_class = LexicalUUIDType()
         self.WACC.column_name_class = AsciiType() 
+        self.WACC.column_validators['c'] = IntegerType() # Conflict flag
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
