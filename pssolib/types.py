@@ -169,7 +169,7 @@ class Consensus():
         return self.d.read()['d']
 
 
-# the cost = 9
+# cost = 9
 class Cas():
 
     def __init__(self,key,init):
