@@ -96,63 +96,66 @@ class WeakAdoptCommit():
 # Metaclass
 class Racing():
 
-    def __init__(self,class_name):
+    def __init__(self,key,class_name,ts=0):
         self.class_name = class_name
+        self.key = key
+        self.ts = ts
+        self.pid = get_thread_ident()
 
-    def enter(self,pid):
-        raise Error("Incorrect racing definition")
+        self.next = 0
+        self.snap = Register(Config.get().MAP,dict(),key,ts)
 
-    def newinstance(self,k,ts=0):
+    def newinstance(self,k,ts):
         module = __import__("pssolib").types
         class_ = getattr(module, self.class_name)
         return class_(k,ts)
 
+    # FIXME move this
+    def min(self,snap):
+        m = self.next
+        for (k,v) in snap.iteritems():
+            if int(v) < m:
+                m = int(v)
+        return m
+
+    def max(self,snap):
+        m = self.next
+        for (k,v) in snap.iteritems():
+            if int(v) > m:
+                m = int(v)
+        return m
+
 class UnboundedRacing(Racing):
 
     def __init__(self,key,class_name,ts=0):
-        Racing.__init__(self,class_name)
-        self.last = 0
-        self.key = key
-        self.snap = Register(Config.get().MAP,dict(),key,ts)
-        self.ts = ts
+        Racing.__init__(self,key,class_name,ts)
 
-    def enter(self,pid):
-        return self.go(pid,self.max())
-
-    def go(self,pid,n):
-        self.last = n
-        self.snap.write({str(pid):str(self.last)})
-        return self.newinstance(random_uuid(str(uuid_add(self.key,self.last))),self.ts)
-
-    def max(self):
-        m = 0
-        for (k,v) in self.snap.read().iteritems():
-            if int(v) > m:
-                m = int(v)
-        if m == self.last:
-            m = m + 1        
-        return m
-
-    def free(self):
-        m = self.last
-        for (k,v) in self.snap.read().iteritems():
-            if int(v) < m:
-                m = int(v)
-        if m==0:
-            return self.max()+1
-        return m-1
+    def enter(self):
+        snap = self.snap.read()
+        self.next = self.max(snap)+1
+        self.snap.write({str(self.pid):str(self.next)})
+        return self.newinstance(random_uuid(str(uuid_add(self.key,self.next))),self.ts)
 
 class BoundedRacing(Racing):
 
-    def __init__(self,key,class_name):
-        Racing.__init__(self,class_name)
-        self.ts = 0
-        self.key = key
-        self.snap = Register(Config.get().MAP,dict(),key)
+    def __init__(self,key,class_name,ts=0):
+        Racing.__init__(self,key,class_name,ts)
 
-    def enter(self,pid):
-        self.ts+=1
-        return self.newinstance(self.key,self.ts)
+    def enter(self,m,rnd):
+        snap = self.snap.read()
+        self.next = m
+        self.snap.write({str(self.pid):str(self.next)})
+        return self.newinstance(random_uuid(str(uuid_add(self.key,self.next))),rnd)
+
+    def free(self):
+        m = self.next
+        snap = self.snap.read()
+        # if smallest > 0 then smallest-1 is free
+        smallest = self.min(snap)
+        if smallest > 0:
+            return smallest - 1
+        # no smallest object, go for the greatest + 1
+        return self.max(snap) + 1
 
 ##############################
 # Complex concurrent objects #
@@ -165,13 +168,12 @@ class Consensus():
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
-        # print "CONS("+str(ts)+")"+str(key)
 
     def propose(self,u):
         while True:
             # if self.d.read()['d'] != None:
             #     return d
-            r = self.R.enter(self.pid).adoptCommit(u)
+            r = self.R.enter().adoptCommit(u)
             if r[1] == 'COMMIT':
                 self.d.write({'d':r[0]})
                 return r[0]
@@ -186,34 +188,40 @@ class Cas():
     def __init__(self,key,init):
         self.key = key
         self.pid = get_thread_ident()
-        self.R = UnboundedRacing(key,"Consensus")
-        self.C = self.R.enter(self.pid)
-        self.last = init
+        self.state = init
+        self.nextRound = 0
+
+        self.R = BoundedRacing(key,"Consensus")
         self.nextLap = 0
+        self.C = self.R.enter(0,0)
 
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
-            if decision == None:
-                if self.last != u:
-                    return False; 
-                decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free()))
+            if decision != None:
+                self.state = decision.rsplit(":")[0]
                 self.nextLap = int(decision.rsplit(":")[2])
-                self.last = decision.rsplit(":")[0]
+                self.nextRound = int(decision.rsplit(":")[3])
+                self.C = self.R.enter(self.nextLap,self.nextRound)
+            else:
+                if self.state != u:
+                    return False; 
+                self.nextRound +=1
+                decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free())+":"+str(self.nextRound))
                 if decision.rsplit(":")[1] != str(self.pid):
                     return False
                 return True                
-            self.R.go(self.pid,self.nextLap)
 
     def get(self):
         while True:
             decision = self.C.decision()
             if decision == None:
-                return self.last
-            else:
-                self.last = decision.rsplit(":")[0]
-                self.C = self.R.enter(self.pid)                
-            
+                return self.state
+            self.state = decision.rsplit(":")[0]
+            self.nextLap = int(decision.rsplit(":")[2])
+            self.nextRound = int(decision.rsplit(":")[3])
+            self.C = self.R.enter(self.nextLap,self.nextRound)
+
 class Spinlock():
 
     def __init__(self,lockid):
