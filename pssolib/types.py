@@ -139,7 +139,7 @@ class UnboundedRacing(Racing):
             if int(v) < m:
                 m = int(v)
         if m==0:
-            return self.max()
+            return self.max()+1
         return m-1
 
 class BoundedRacing(Racing):
@@ -189,6 +189,7 @@ class Cas():
         self.R = UnboundedRacing(key,"Consensus")
         self.C = self.R.enter(self.pid)
         self.last = init
+        self.nextLap = 0
 
     def compareandswap(self,u,v):
         while True:
@@ -197,12 +198,12 @@ class Cas():
                 if self.last != u:
                     return False; 
                 decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free()))
-                self.R.go(self.pid,int(decision.rsplit(":")[2]))
+                self.nextLap = int(decision.rsplit(":")[2])
                 self.last = decision.rsplit(":")[0]
                 if decision.rsplit(":")[1] != str(self.pid):
                     return False
                 return True                
-            self.C = self.R.enter(self.pid)
+            self.R.go(self.pid,self.nextLap)
 
     def get(self):
         while True:
