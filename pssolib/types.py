@@ -76,6 +76,7 @@ class Splitter():
 
     def split(self):
 
+        # FIXME useful ? 
         # if self.x.read()['x'] != None:
         #     return False
 
@@ -103,25 +104,23 @@ class WeakAdoptCommit():
     def adoptCommit(self,u):
 
         # FIXME mandatory if the cluster is not sync ? ( escape due to the implem of atomicity ?)
-        # d = self.d.read()['d'] 
-        # if d != None:
-        #     return (d,'ADOPT')
+        d = self.d.read()['d'] 
+        if d != None:
+            return (d,'ADOPT')
  
         if self.splitter.split()==False :
             print "WAC splitter lost"
-            d = self.d.read()['d']
-            if d == None:
-                self.c.write({'c':True})
-                d = u
-                self.d.write({'d':u})
-        else:
+            self.c.write({'c':True})
+
+        d = self.d.read()['d']
+        if d == None:
             d = u
-            self.d.write({'d':u})
+            self.d.write({'d':u})            
     
         c = self.c.read()['c']
         if c == True:
-            return (d,'ADOPT')
-        return (d,'COMMIT')
+            return (u,'ADOPT')
+        return (u,'COMMIT')
 
 ##################
 # Racing objects #
@@ -215,16 +214,18 @@ class Consensus():
         print "CONS "+"("+str(ts)+") "+str(key)
 
     def propose(self,u):
+        p = u
         while True:
             d = self.d.read()['d']
             if d != None:
                 print "CONS (early) "+str(d)
                 return d
-            r = self.R.enter().adoptCommit(u)
+            r = self.R.enter().adoptCommit(p)
             print "CONS "+str(r)
+            p = r[0]
             if r[1] == 'COMMIT':                
-                self.d.write({'d':r[0]})
-                return r[0]
+                self.d.write({'d':p})
+                return p
 
     def decision(self):
         return self.d.read()['d']
@@ -259,9 +260,9 @@ class Cas():
                     return False; 
                 self.nextRound +=1
                 decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free())+":"+str(self.nextRound))
-                if decision.rsplit(":")[1] != str(self.pid):
-                    return False
-                return True                
+                if decision.rsplit(":")[1] == str(self.pid):
+                    print "CAS (True) "+str(self.nextRound-1)+" "+str(u)+" "+str(v)
+                    return True                
 
     def get(self):
         while True:

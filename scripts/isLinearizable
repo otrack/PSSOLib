@@ -1,11 +1,10 @@
 #!/bin/sh
-grep True /tmp/exp/* | awk -F: '{print $2}' /dev/null | sort \
+grep -H "(True)" /tmp/exp/* | awk '{print $3" "$4" "$5}' | sort -V \
     | awk ' \
       BEGIN{LAST=0} \
       { \
-       if (LAST != $4) { \
-         print $4 " " LAST \
+       if (LAST != $2) { \
+         print $0 \
        } \
-       LAST = $5 \
+       LAST = $3 \
       }'
-
