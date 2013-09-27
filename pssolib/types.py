@@ -161,7 +161,7 @@ class BoundedRacing(Racing):
 # Complex concurrent objects #
 ##############################
 
-# cost = 7
+# cost = 8
 class Consensus():
 
     def __init__(self,key,ts=0):
