@@ -109,17 +109,19 @@ class WeakAdoptCommit():
  
         if self.splitter.split()==False :
             print "WAC splitter lost"
-            self.c.write({'c':True})
-
-        d = self.d.read()['d']
-        if d == None:
+            d = self.d.read()['d']
+            if d == None:
+                self.c.write({'c':True})
+                d = u
+                self.d.write({'d':u})
+        else:
             d = u
-            self.d.write({'d':u})            
+            self.d.write({'d':u})
     
         c = self.c.read()['c']
         if c == True:
-            return (u,'ADOPT')
-        return (u,'COMMIT')
+            return (d,'ADOPT')
+        return (d,'COMMIT')
 
 ##################
 # Racing objects #
