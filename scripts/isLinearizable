@@ -1,1 +1,11 @@
-grep True /tmp/exp/* | awk -F: '{print }' | sort|wc -l
+#!/bin/sh
+grep True /tmp/exp/* | awk -F: '{print $2}' /dev/null | sort \
+    | awk ' \
+      BEGIN{LAST=0} \
+      { \
+       if (LAST != $4) { \
+         print $4 " " LAST \
+       } \
+       LAST = $5 \
+      }'
+
