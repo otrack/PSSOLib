@@ -171,7 +171,8 @@ class Consensus():
 
     def propose(self,u):
         while True:
-            if self.d.read()['d'] != None:
+            d = self.d.read()['d']
+            if d != None:
                 return d
             r = self.R.enter().adoptCommit(u)
             if r[1] == 'COMMIT':
