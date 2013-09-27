@@ -1,4 +1,4 @@
-import uuid, nanotime, time, uuid, random, sys
+import uuid, nanotime, time, uuid, random, sys, copy
 
 from pssolib.utils import *
 
@@ -14,7 +14,6 @@ from pssolib.utils import *
 class Register():
 
     def __init__(self,columnFamily,initValue,key,ts=0):
-
         self.key = key
         self.columnFamily = columnFamily
         self.initValue = initValue
@@ -34,14 +33,46 @@ class Register():
             pass
         return self.initValue
 
-# cost = 4
+class Snapshot():
+
+    def __init__(self,columnFamily,initValue,key,ts=0):
+        self.key = key
+        self.columnFamily = columnFamily
+        self.initValue = initValue
+        self.ts = ts
+
+    def write(self,val):
+        wval = copy.deepcopy(val)
+        for (k,v) in val.iteritems():
+            wval['ts'+k] = str(self.ts)
+        self.columnFamily.insert(self.key,wval)
+
+    def read(self):
+        try:
+            val = self.columnFamily.get(self.key)
+            # compute the paris that are in
+            rval = dict()
+            for (k,v) in val.iteritems():
+                if "ts" not in k:
+                    if int(val["ts"+k]) >= self.ts:
+                        rval[k] = v
+            # complete if needed
+            for (k,v) in self.initValue.iteritems():
+                if k not in rval:
+                    rval[k] = v
+            return rval
+        except NotFoundException:
+            pass
+        return self.initValue
+
+# cost = 4 * 4
 class Splitter():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.x = Register(Config.get().SPLITTERX,{'x':None},key,ts)
         self.y = Register(Config.get().SPLITTERY,{'y':False},key,ts)
-        # print str(key)+":"+str(ts)
+        print "SPLITTER ("+str(ts)+") "+str(key)
 
     def split(self):
 
@@ -60,32 +91,35 @@ class Splitter():
         
         return True
 
-# cost = 6
+# cost = 6 * 4
 class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key,ts)        
         self.d = Register(Config.get().WACD,{'d':None},key,ts)
         self.c = Register(Config.get().WACC,{'c':False},key,ts)
-        # print "WAC("+str(ts)+")"+str(key)
+        print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
 
-        # d = self.d.read()['d']
+        # FIXME mandatory if the cluster is not sync ? ( escape due to the implem of atomicity ?)
+        # d = self.d.read()['d'] 
         # if d != None:
         #     return (d,'ADOPT')
  
         if self.splitter.split()==False :
+            print "WAC splitter lost"
             self.c.write({'c':True})
-            d = self.d.read()['d']
-        else:
+
+        d = self.d.read()['d']
+        if d == None:
             d = u
-            self.d.write({'d':u})
-        
+            self.d.write({'d':u})            
+    
         c = self.c.read()['c']
         if c == True:
-            return (d,'ADOPT')
-        return (d,'COMMIT')
+            return (u,'ADOPT')
+        return (u,'COMMIT')
 
 ##################
 # Racing objects #
@@ -102,8 +136,8 @@ class Racing():
         self.ts = ts
         self.pid = get_thread_ident()
 
-        self.next = 0
-        self.snap = Register(Config.get().MAP,dict(),key,ts)
+        self.current = 0
+        self.snap = Snapshot(Config.get().MAP,dict(),key,ts)
 
     def newinstance(self,k,ts):
         module = __import__("pssolib").types
@@ -112,14 +146,14 @@ class Racing():
 
     # FIXME move this
     def min(self,snap):
-        m = self.next
+        m = self.current
         for (k,v) in snap.iteritems():
             if int(v) < m:
                 m = int(v)
         return m
 
     def max(self,snap):
-        m = self.next
+        m = self.current
         for (k,v) in snap.iteritems():
             if int(v) > m:
                 m = int(v)
@@ -129,12 +163,20 @@ class UnboundedRacing(Racing):
 
     def __init__(self,key,class_name,ts=0):
         Racing.__init__(self,key,class_name,ts)
+        print "RACING "+"("+str(ts)+") "+str(key)
 
     def enter(self):
+        print "RACING leaving "+str(self.current)
+        self.snap.write({str(self.pid):str(self.current)})
         snap = self.snap.read()
-        self.next = self.max(snap)+1
-        self.snap.write({str(self.pid):str(self.next)})
-        return self.newinstance(random_uuid(str(uuid_add(self.key,self.next))),self.ts)
+        print "RACING state of the game "+str(snap)
+        m = self.max(snap)
+        if self.current == m:
+            self.current = m +1
+        else:
+            self.current = m
+        print "RACING entering "+str(self.current)
+        return self.newinstance(random_uuid(str(self.key)+str(self.current)),self.ts)
 
 class BoundedRacing(Racing):
 
@@ -143,12 +185,12 @@ class BoundedRacing(Racing):
 
     def enter(self,m,rnd):
         snap = self.snap.read()
-        self.next = m
-        self.snap.write({str(self.pid):str(self.next)})
-        return self.newinstance(random_uuid(str(uuid_add(self.key,self.next))),rnd)
+        self.current = m
+        self.snap.write({str(self.pid):str(self.current)})
+        return self.newinstance(random_uuid(str(self.key)+str(self.current)),rnd)
 
     def free(self):
-        m = self.next
+        m = self.current
         snap = self.snap.read()
         # if smallest > 0 then smallest-1 is free
         smallest = self.min(snap)
@@ -161,21 +203,24 @@ class BoundedRacing(Racing):
 # Complex concurrent objects #
 ##############################
 
-# cost = 8
+# cost = 8 * 4
 class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
+        print "CONS "+"("+str(ts)+") "+str(key)
 
     def propose(self,u):
         while True:
             d = self.d.read()['d']
             if d != None:
+                print "CONS (early) "+str(d)
                 return d
             r = self.R.enter().adoptCommit(u)
-            if r[1] == 'COMMIT':
+            print "CONS "+str(r)
+            if r[1] == 'COMMIT':                
                 self.d.write({'d':r[0]})
                 return r[0]
 
@@ -183,7 +228,7 @@ class Consensus():
         return self.d.read()['d']
 
 
-# cost = 9
+# cost = 9 * 4
 class Cas():
 
     def __init__(self,key,init):
@@ -194,15 +239,18 @@ class Cas():
 
         self.R = BoundedRacing(key,"Consensus")
         self.nextLap = 0
+        # print "entering (init) "+str(self.nextRound)
         self.C = self.R.enter(0,0)
 
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
+            # print "["+str(decision)+"]"
             if decision != None:
                 self.state = decision.rsplit(":")[0]
                 self.nextLap = int(decision.rsplit(":")[2])
                 self.nextRound = int(decision.rsplit(":")[3])
+                print "CAS "+str(self.nextRound-1)+"["+str(decision)+"]"
                 self.C = self.R.enter(self.nextLap,self.nextRound)
             else:
                 if self.state != u:
@@ -221,6 +269,7 @@ class Cas():
             self.state = decision.rsplit(":")[0]
             self.nextLap = int(decision.rsplit(":")[2])
             self.nextRound = int(decision.rsplit(":")[3])
+            # print "entering (get) "+str(self.nextRound)
             self.C = self.R.enter(self.nextLap,self.nextRound)
 
 class Spinlock():
@@ -298,21 +347,3 @@ class Stack():
     def empty(self):
         return self.head.get() == "0"
     
-
-
-##############
-# Deprecated #
-##############
-
-class PseudoRacing(Racing):
-
-    def __init__(self,key,class_name):
-        Racing.__init__(self,class_name)
-        self.class_name = class_name
-        self.key = key
-        self.i = 0
-
-    def enter(self,pid):
-        self.i = self.i + 1        
-        return self.newinstance(uuid_add(self.key,self.i))
-

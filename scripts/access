@@ -21,7 +21,7 @@ if len(sys.argv) != 7:
 it=int(sys.argv[5])
 nap=int(sys.argv[6])
 A=0
-B=9
+B=0
     
 #PSSOLib stuff
 
@@ -121,10 +121,10 @@ if sys.argv[1]=="P":
     cfg = Config.create(parser,False)
 
     id1=uuid.UUID(sys.argv[4])
-    spin = Spinlock(id1)
+    # spin = Spinlock(id1)
 
     cas = Cas(id1,str(0))
-    cons = Consensus(id1)
+    # cons = Consensus(id1)
 
     pssolib_measure(sys.argv[2],it)
 
