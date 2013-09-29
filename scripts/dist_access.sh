@@ -25,8 +25,8 @@ fi
 # 2 - Launch experiments
 
 client_min=10
-client_max=10
-client_incr=1
+client_max=50
+client_incr=10
 
 nap_min=0
 nap_max=0
