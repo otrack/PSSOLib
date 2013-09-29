@@ -72,7 +72,7 @@ class Splitter():
         self.pid = get_thread_ident()
         self.x = Register(Config.get().SPLITTERX,{'x':None},key,ts)
         self.y = Register(Config.get().SPLITTERY,{'y':False},key,ts)
-        print "SPLITTER ("+str(ts)+") "+str(key)
+        # print "SPLITTER ("+str(ts)+") "+str(key)
 
     def split(self):
 
@@ -99,26 +99,25 @@ class WeakAdoptCommit():
         self.splitter = Splitter(key,ts)        
         self.d = Register(Config.get().WACD,{'d':None},key,ts)
         self.c = Register(Config.get().WACC,{'c':False},key,ts)
-        print "WAC ("+str(ts)+") "+str(key)
+        # print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
-
-        # FIXME mandatory if the cluster is not sync ? ( escape due to the implem of atomicity ?)
         d = self.d.read()['d'] 
         if d != None:
-            return (d,'ADOPT')
- 
-        if self.splitter.split()==False :
-            print "WAC splitter lost"
-            self.c.write({'c':True})
+            if self.c.read()['c'] == True:
+                return (d,'ADOPT')
+            return (d,'COMMIT')
 
-        d = self.d.read()['d']
-        if d == None:
-            d = u
-            self.d.write({'d':u})            
-    
-        c = self.c.read()['c']
-        if c == True:
+        if self.splitter.split()==False :
+            # print "WAC splitter lost"
+            self.c.write({'c':True})
+            d = self.d.read()['d']
+            if d != None:
+                return (d,'ADOPT')
+            return (u,'ADOPT')
+
+        self.d.write({'d':u})
+        if self.c.read()['c'] == True:
             return (u,'ADOPT')
         return (u,'COMMIT')
 
@@ -164,19 +163,19 @@ class UnboundedRacing(Racing):
 
     def __init__(self,key,class_name,ts=0):
         Racing.__init__(self,key,class_name,ts)
-        print "RACING "+"("+str(ts)+") "+str(key)
+        # print "RACING "+"("+str(ts)+") "+str(key)
 
     def enter(self):
-        print "RACING leaving "+str(self.current)
+        # print "RACING leaving "+str(self.current)
         self.snap.write({str(self.pid):str(self.current)})
         snap = self.snap.read()
-        print "RACING state of the game "+str(snap)
+        # print "RACING state of the game "+str(snap)
         m = self.max(snap)
         if self.current == m:
             self.current = m +1
         else:
             self.current = m
-        print "RACING entering "+str(self.current)
+        # print "RACING entering "+str(self.current)
         return self.newinstance(random_uuid(str(self.key)+str(self.current)),self.ts)
 
 class BoundedRacing(Racing):
@@ -211,17 +210,17 @@ class Consensus():
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
-        print "CONS "+"("+str(ts)+") "+str(key)
+        # print "CONS "+"("+str(ts)+") "+str(key)
 
     def propose(self,u):
         p = u
         while True:
             d = self.d.read()['d']
             if d != None:
-                print "CONS (early) "+str(d)
+                # print "CONS (early) "+str(d)
                 return d
             r = self.R.enter().adoptCommit(p)
-            print "CONS "+str(r)
+            # print "CONS "+str(r)
             p = r[0]
             if r[1] == 'COMMIT':                
                 self.d.write({'d':p})
@@ -253,7 +252,7 @@ class Cas():
                 self.state = decision.rsplit(":")[0]
                 self.nextLap = int(decision.rsplit(":")[2])
                 self.nextRound = int(decision.rsplit(":")[3])
-                print "CAS "+str(self.nextRound-1)+"["+str(decision)+"]"
+                # print "CAS "+str(self.nextRound-1)+"["+str(decision)+"]"
                 self.C = self.R.enter(self.nextLap,self.nextRound)
             else:
                 if self.state != u:
