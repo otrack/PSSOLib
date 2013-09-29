@@ -143,7 +143,10 @@ else:
         lock = zk.Lock("/"+sys.argv[4])
     else:
         cas = "/"+sys.argv[4]
-        zk.create(cas,str(0))
+        try:
+            zk.create(cas,str(0))
+        except:
+            pass
 
     zk_measure(sys.argv[2],it)
     zk.stop()
