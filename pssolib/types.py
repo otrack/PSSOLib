@@ -162,6 +162,16 @@ class Racing():
                 m = int(v)
         return m
 
+class PseudoRacing(Racing):
+
+    def __init__(self,key,class_name,ts=0):
+        Racing.__init__(self,key,class_name,ts)
+        # print "RACING "+"("+str(ts)+") "+str(key)
+
+    def enter(self):
+        self.current = self.current + 1
+        return self.newinstance(random_uuid(str(self.key)+str(self.current)),self.ts)
+
 class UnboundedRacing(Racing):
 
     def __init__(self,key,class_name,ts=0):
@@ -212,7 +222,7 @@ class Consensus():
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
-        self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
+        self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
         # print "CONS "+"("+str(ts)+") "+str(key)
 
     def propose(self,u):
