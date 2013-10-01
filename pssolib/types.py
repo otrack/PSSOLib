@@ -111,6 +111,7 @@ class WeakAdoptCommit():
 
         if self.splitter.split()==False :
             # print "WAC splitter lost"
+            time.sleep(2*0.001)
             self.c.write({'c':True})
             d = self.d.read()['d']
             if d != None:
