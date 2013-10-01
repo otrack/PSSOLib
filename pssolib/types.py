@@ -33,6 +33,7 @@ class Register():
             pass
         return self.initValue
 
+# FIXME no atomicity of row writing ... thanks Cassandra ! 
 class Snapshot():
 
     def __init__(self,columnFamily,initValue,key,ts=0):
@@ -42,20 +43,21 @@ class Snapshot():
         self.ts = ts
 
     def write(self,val):
-        wval = copy.deepcopy(val)
+        wval = dict()
         for (k,v) in val.iteritems():
-            wval['ts'+k] = str(self.ts)
+            wval[k] = str(v)+":"+str(self.ts)
+        # print "SNAPSHOT writing "+str(wval)
         self.columnFamily.insert(self.key,wval)
 
     def read(self):
         try:
             val = self.columnFamily.get(self.key)
-            # compute the paris that are in
+            # print "SNAPSHOT reading "+str(val)
+            # compute the pairs that are in
             rval = dict()
             for (k,v) in val.iteritems():
-                if "ts" not in k:
-                    if int(val["ts"+k]) >= self.ts:
-                        rval[k] = v
+                if int(v.rsplit(":")[1]) >= self.ts:
+                    rval[k] = v.rsplit(":")[0]
             # complete if needed
             for (k,v) in self.initValue.iteritems():
                 if k not in rval:
