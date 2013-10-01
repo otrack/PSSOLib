@@ -29,7 +29,7 @@ client_max=30
 client_incr=10
 
 nap_min=0
-nap_max=0
+nap_max=10
 nap_incr=10
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
