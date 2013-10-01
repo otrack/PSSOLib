@@ -2,7 +2,6 @@ import uuid, nanotime, time, uuid, random, sys, copy
 
 from pssolib.utils import *
 
-# FIXME define a concurrent map  object 
 # FIXME (Register) enforce a single key in every value
 # FIXME (Cas) backslash the ":" separator 
 # FIXME Cas and consensus not localy concurrent objects
@@ -126,8 +125,6 @@ class WeakAdoptCommit():
 ##################
 # Racing objects #
 ##################
-
-# FIXME move pid to the constructor.
 
 # Metaclass
 class Racing():
