@@ -103,6 +103,9 @@ class WeakAdoptCommit():
         print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
+        mdelay=0
+        maxdelay=32
+
         d = self.d.read()['d'] 
         if d != None:
             if self.c.read()['c'] == True:
@@ -111,7 +114,14 @@ class WeakAdoptCommit():
 
         if self.splitter.split()==False :
             # print "WAC splitter lost"
-            time.sleep(2*0.001)
+            if mdelay==0:
+                mdelay=2
+            else:
+                mdelay=mdelay*2 # exp backoff
+            if mdelay>maxdelay:
+                mdelay=maxdelay # with a cap
+            sleeptime = random.expovariate(1.0/mdelay)
+
             self.c.write({'c':True})
             d = self.d.read()['d']
             if d != None:
