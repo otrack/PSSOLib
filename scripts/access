@@ -118,7 +118,7 @@ if sys.argv[1]=="P":
     parser.add_section("main")
     parser.set("main","servers",sys.argv[3])
     parser.set("main","keyspace","access")
-    cfg = Config.create(parser,False)
+    cfg = Config.create(parser,True)
 
     id1=uuid.UUID(sys.argv[4])
     # spin = Spinlock(id1)
