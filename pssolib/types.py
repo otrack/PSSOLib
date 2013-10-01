@@ -78,8 +78,8 @@ class Splitter():
     def split(self):
 
         # # FIXME useful ? 
-        # if self.x.read()['x'] != None:
-        #     return False
+        if self.x.read()['x'] != None:
+            return False
 
         self.x.write({'x':self.pid})
 
@@ -103,16 +103,20 @@ class WeakAdoptCommit():
         print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
-        d = self.d.read()['d'] 
-        if d != None:
-            if self.c.read()['c'] == True:
-                return (d,'ADOPT')
-            return (d,'COMMIT')
 
         if self.splitter.split()==False :
             # print "WAC splitter lost"
+
+            d = self.d.read()['d'] 
+            if d != None:
+                if self.c.read()['c'] == True:
+                    return (d,'ADOPT')
+                return (d,'COMMIT')
+
             time.sleep(0.002)
+
             self.c.write({'c':True})
+
             d = self.d.read()['d']
             if d != None:
                 return (d,'ADOPT')
