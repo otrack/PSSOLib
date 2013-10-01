@@ -78,8 +78,8 @@ class Splitter():
     def split(self):
 
         # FIXME useful ? 
-        if self.x.read()['x'] != None:
-            return False
+        # if self.x.read()['x'] != None:
+        #     return False
 
         self.x.write({'x':self.pid})
 
@@ -169,12 +169,13 @@ class UnboundedRacing(Racing):
         # print "RACING "+"("+str(ts)+") "+str(key)
 
     def enter(self):
-        # # print "RACING leaving "+str(self.current)
+        # print "RACING leaving "+str(self.current)
         # self.snap.write({str(self.pid):str(self.current)})
         # snap = self.snap.read()
         # # print "RACING state of the game "+str(snap)
         # m = self.max(snap)
         # if self.current == m:
+        #     self.current = m +1
         # else:
         #     self.current = m
         # print "RACING entering "+str(self.current)
