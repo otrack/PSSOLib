@@ -60,12 +60,10 @@ class Config():
                 self.SYSM.drop_keyspace(self.KEYSPACE)
             except:
                 pass
-            if len(self.SERVERS) < 3:
-                print "Replication factor = 1"
-                replication_factor = '1'
-            else:
-                print "Replication factor = 3"
-                replication_factor = '3'
+
+            print "Replication factor = 3"
+            replication_factor = '3'
+
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor})
             self.SYSM.create_column_family(self.KEYSPACE, 'register')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
