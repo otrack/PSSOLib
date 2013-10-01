@@ -81,6 +81,8 @@ do
  	stddev=`echo "scale=2;(${tspread})/${rclients}" | ${bc}`
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
+
+	sleep 1
 	
     done
     
