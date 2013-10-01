@@ -100,7 +100,7 @@ class WeakAdoptCommit():
         self.splitter = Splitter(key,ts)        
         self.d = Register(Config.get().WACD,{'d':None},key,ts)
         self.c = Register(Config.get().WACC,{'c':False},key,ts)
-        # print "WAC ("+str(ts)+") "+str(key)
+        print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
         d = self.d.read()['d'] 
