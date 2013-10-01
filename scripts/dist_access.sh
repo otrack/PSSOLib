@@ -26,7 +26,7 @@ fi
 
 client_min=1
 client_max=10
-client_incr=10
+client_incr=1
 
 nap_min=0
 nap_max=0
