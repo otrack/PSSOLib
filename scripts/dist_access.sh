@@ -25,12 +25,12 @@ fi
 # 2 - Launch experiments
 
 client_min=10
-client_max=30
+client_max=10
 client_incr=10
 
 nap_min=0
-nap_max=10
-nap_incr=10
+nap_max=0
+nap_incr=0
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do
