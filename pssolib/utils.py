@@ -60,7 +60,7 @@ class Config():
                 self.SYSM.drop_keyspace(self.KEYSPACE)
             except:
                 pass
-            if len(self.SERVERS) == 1:
+            if len(self.SERVERS) < 3:
                 replication_factor = '1'
             else:
                 replication_factor = '3'
