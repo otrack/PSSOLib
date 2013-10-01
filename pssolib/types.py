@@ -78,8 +78,8 @@ class Splitter():
     def split(self):
 
         # FIXME useful ? 
-        # if self.x.read()['x'] != None:
-        #     return False
+        if self.x.read()['x'] != None:
+            return False
 
         self.x.write({'x':self.pid})
 
