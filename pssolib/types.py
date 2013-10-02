@@ -272,7 +272,7 @@ class Cas():
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
-            # print "["+str(decision)+"]"
+            print "["+str(decision)+"]"
             if decision != None:
                 self.state = decision.rsplit(":")[0]
                 self.nextLap = int(decision.rsplit(":")[2])
