@@ -228,11 +228,10 @@ class Consensus():
     def propose(self,u):
         p = u
         while True:
-            return u
-            d = self.d.read()['d']
-            if d != None:
-                # print "CONS (early) "+str(d)
-                return d
+            # d = self.d.read()['d']
+            # if d != None:
+            #     # print "CONS (early) "+str(d)
+            #     return d
             r = self.R.enter().adoptCommit(p)
             # print "CONS "+str(r)
             p = r[0]
