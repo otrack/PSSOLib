@@ -31,7 +31,7 @@ class Register():
         try:
             val = self.columnFamily.get(self.key)
             if int(v.rsplit(":")[1]) >= self.ts:
-                rval[k] = v.rsplit(":")[0]
+                rval[k] = val.rsplit(":")[0]
                 return rval
         except NotFoundException:
             pass
