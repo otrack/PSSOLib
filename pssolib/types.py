@@ -19,15 +19,24 @@ class Register():
         self.ts = ts
         
     def write(self,val):
-        val['ts'] = str(self.ts)
-        self.columnFamily.insert(self.key,val)
+        wval = dict()
+        for (k,v) in val.iteritems():
+            wval[k] = str(v)+":"+str(self.ts)
+        self.columnFamily.insert(self.key,wval)
         
     def read(self):
         try:
             val = self.columnFamily.get(self.key)
-            if int(val['ts']) >= self.ts:
-                del val['ts']
-                return val
+            # compute the pairs that are in
+            rval = dict()
+            for (k,v) in val.iteritems():
+                if int(v.rsplit(":")[1]) >= self.ts:
+                    rval[k] = v.rsplit(":")[0]
+            # complete if needed
+            for (k,v) in self.initValue.iteritems():
+                if k not in rval:
+                    rval[k] = v
+            return rval
         except NotFoundException:
             pass
         return self.initValue
