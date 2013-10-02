@@ -229,25 +229,27 @@ class Consensus():
         self.pid = get_thread_ident()
         self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
+        self.cd = None
         # print "CONS "+"("+str(ts)+") "+str(key)
 
     def propose(self,u):
         p = u
         while True:
-            # d = self.d.read()['d']
-            # if d != None:
-                # print "CONS (early) "+str(d)
-            # return d
+            d = self.d.read()['d']
+            if d != None:
+                return d
             r = self.R.enter().adoptCommit(p)
             # print "CONS "+str(r)
             p = r[0]
             if r[1] == 'COMMIT':                
-                # self.d.write({'d':p})
+                self.d.write({'d':p})
+                self.cd = p
                 return p
 
     def decision(self):
+        if self.cd != None:
+            return self.cd
         return self.d.read()['d']
-
 
 # cost = 9 * 4
 class Cas():

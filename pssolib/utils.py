@@ -61,11 +61,16 @@ class Config():
             except:
                 pass
 
-            print "Replication factor = 3"
-            replication_factor = '3'
+            if 'localhost' in self.SERVERS:
+                print "Replication factor = 1"
+                replication_factor = '1'
+            else:
+                print "Replication factor = 3"
+                replication_factor = '3'                
 
             self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor})
             self.SYSM.create_column_family(self.KEYSPACE, 'register')
+            self.SYSM.create_column_family(self.KEYSPACE, 'wregister')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
             self.SYSM.create_column_family(self.KEYSPACE, 'splitterx')
             self.SYSM.create_column_family(self.KEYSPACE, 'splittery')
@@ -120,6 +125,12 @@ class Config():
         self.REGISTER.write_consistency_level = ConsistencyLevel.QUORUM
         self.REGISTER.key_validation_class = LexicalUUIDType()
         self.REGISTER.column_name_class = AsciiType()
+
+        self.WREGISTER = ColumnFamily(self.POOL, 'wregister',)
+        self.WREGISTER.read_consistency_level = ConsistencyLevel.ONE
+        self.WREGISTER.write_consistency_level = ConsistencyLevel.QUORUM
+        self.WREGISTER.key_validation_class = LexicalUUIDType()
+        self.WREGISTER.column_name_class = AsciiType()
         
 #############################
 # UUID 
