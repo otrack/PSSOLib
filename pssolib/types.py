@@ -104,6 +104,8 @@ class WeakAdoptCommit():
 
     def adoptCommit(self,u):
 
+        return (u,'COMMIT')
+
         if self.splitter.split()==False :
             # print "WAC splitter lost"
 
@@ -228,10 +230,10 @@ class Consensus():
     def propose(self,u):
         p = u
         while True:
-            # d = self.d.read()['d']
-            # if d != None:
-            #     # print "CONS (early) "+str(d)
-            #     return d
+            d = self.d.read()['d']
+            if d != None:
+                # print "CONS (early) "+str(d)
+                return d
             r = self.R.enter().adoptCommit(p)
             # print "CONS "+str(r)
             p = r[0]
