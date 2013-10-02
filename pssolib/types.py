@@ -22,7 +22,7 @@ class Register():
     def write(self,val):
         wval = dict()
         for (k,v) in val.iteritems():
-            wval[k] = str(v)+":"+str(self.ts)
+            wval[k] = str(v)+"#"+str(self.ts)
         print "REGISTER writing "+str(wval)
         self.columnFamily.insert(self.key,wval)
         
@@ -30,9 +30,10 @@ class Register():
         rval = dict()
         try:
             val = self.columnFamily.get(self.key)
+            print "REGISTER reading "+str(val)
             for (k,v) in val.iteritems():
-                if int(v.rsplit(":")[1]) >= self.ts:
-                    rval[k] = v.rsplit(":")[0]
+                if int(v.rsplit("#")[1]) >= self.ts:
+                    rval[k] = v.rsplit("#")[0]
                     return rval
         except NotFoundException:
             pass
