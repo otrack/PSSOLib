@@ -227,7 +227,7 @@ class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.d = Register(Config.get().WREGISTER,{'d':None},key,ts)
+        self.d = Register(Config.get().REGISTER,{'d':None},key,ts)
         self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
         self.cd = None
         # print "CONS "+"("+str(ts)+") "+str(key)
