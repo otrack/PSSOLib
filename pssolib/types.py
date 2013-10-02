@@ -3,6 +3,7 @@ import uuid, nanotime, time, uuid, random, sys, copy
 from pssolib.utils import *
 
 # FIXME (Register) enforce a single key in every value
+# FIXME (Register) return the sole possible (k,v)
 # FIXME (Cas) backslash the ":" separator 
 # FIXME Cas and consensus not localy concurrent objects
 
@@ -271,7 +272,6 @@ class Cas():
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
-            return True
             # print "["+str(decision)+"]"
             if decision != None:
                 self.state = decision.rsplit(":")[0]
