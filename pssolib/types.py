@@ -261,6 +261,7 @@ class Cas():
 
     def compareandswap(self,u,v):
         while True:
+            return True
             decision = self.C.decision()
             # print "["+str(decision)+"]"
             if decision != None:
