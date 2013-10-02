@@ -52,7 +52,7 @@ class Snapshot():
     def write(self,val):
         wval = dict()
         for (k,v) in val.iteritems():
-            wval[k] = str(v)+":"+str(self.ts)
+            wval[k] = str(v)+"#"+str(self.ts)
         # print "SNAPSHOT writing "+str(wval)
         self.columnFamily.insert(self.key,wval)
 
@@ -63,8 +63,8 @@ class Snapshot():
             # compute the pairs that are in
             rval = dict()
             for (k,v) in val.iteritems():
-                if int(v.rsplit(":")[1]) >= self.ts:
-                    rval[k] = v.rsplit(":")[0]
+                if int(v.rsplit("#")[1]) >= self.ts:
+                    rval[k] = v.rsplit("#")[0]
             # complete if needed
             for (k,v) in self.initValue.iteritems():
                 if k not in rval:
@@ -111,8 +111,6 @@ class WeakAdoptCommit():
         print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
-
-        return (u,'COMMIT')
 
         if self.splitter.split()==False :
             # print "WAC splitter lost"
