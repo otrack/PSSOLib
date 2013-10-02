@@ -23,23 +23,19 @@ class Register():
         wval = dict()
         for (k,v) in val.iteritems():
             wval[k] = str(v)+":"+str(self.ts)
+        print "REGISTER writing "+str(wval)
         self.columnFamily.insert(self.key,wval)
         
     def read(self):
+        rval = dict()
         try:
             val = self.columnFamily.get(self.key)
-            # compute the pairs that are in
-            rval = dict()
-            for (k,v) in val.iteritems():
-                if int(v.rsplit(":")[1]) >= self.ts:
-                    rval[k] = v.rsplit(":")[0]
-            # complete if needed
-            for (k,v) in self.initValue.iteritems():
-                if k not in rval:
-                    rval[k] = v
-            return rval
+            if int(v.rsplit(":")[1]) >= self.ts:
+                rval[k] = v.rsplit(":")[0]
+                return rval
         except NotFoundException:
             pass
+        # FIXME clone this ? 
         return self.initValue
 
 # FIXME no atomicity of row writing ... thanks Cassandra ! 
@@ -81,8 +77,8 @@ class Splitter():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.x = Snapshot(Config.get().SPLITTERX,{'x':None},key,ts)
-        self.y = Snapshot(Config.get().SPLITTERY,{'y':False},key,ts)
+        self.x = Register(Config.get().SPLITTERX,{'x':None},key,ts)
+        self.y = Register(Config.get().SPLITTERY,{'y':False},key,ts)
         # print "SPLITTER ("+str(ts)+") "+str(key)
 
     def split(self):
@@ -108,8 +104,8 @@ class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key,ts)        
-        self.d = Snapshot(Config.get().WACD,{'d':None},key,ts)
-        self.c = Snapshot(Config.get().WACC,{'c':False},key,ts)
+        self.d = Register(Config.get().WACD,{'d':None},key,ts)
+        self.c = Register(Config.get().WACC,{'c':False},key,ts)
         print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
@@ -233,7 +229,7 @@ class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.d = Snapshot(Config.get().CONSENSUS,{'d':None},key,ts)
+        self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
         # print "CONS "+"("+str(ts)+") "+str(key)
 
