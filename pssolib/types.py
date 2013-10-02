@@ -21,20 +21,18 @@ class Register():
         
     def write(self,val):
         wval = dict()
-        for (k,v) in val.iteritems():
-            wval[k] = str(v)+"#"+str(self.ts)
-        print "REGISTER writing "+str(wval)
-        self.columnFamily.insert(self.key,wval)
+        val['ts'] = str(self.ts)
+        print "REGISTER writing "+str(val)
+        self.columnFamily.insert(self.key,val)
         
     def read(self):
         rval = dict()
         try:
             val = self.columnFamily.get(self.key)
             print "REGISTER reading "+str(val)
-            for (k,v) in val.iteritems():
-                if int(v.rsplit("#")[1]) >= self.ts:
-                    rval[k] = v.rsplit("#")[0]
-                    return rval
+            if int(val['ts']) >= self.ts:
+                del val['ts']
+                return val
         except NotFoundException:
             pass
         # FIXME clone this ? 
