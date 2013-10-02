@@ -234,15 +234,15 @@ class Consensus():
     def propose(self,u):
         p = u
         while True:
-            d = self.d.read()['d']
-            if d != None:
+            # d = self.d.read()['d']
+            # if d != None:
                 # print "CONS (early) "+str(d)
-                return d
+            # return d
             r = self.R.enter().adoptCommit(p)
             # print "CONS "+str(r)
             p = r[0]
             if r[1] == 'COMMIT':                
-                self.d.write({'d':p})
+                # self.d.write({'d':p})
                 return p
 
     def decision(self):
@@ -266,7 +266,6 @@ class Cas():
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
-            return True
             print "["+str(decision)+"]"
             if decision != None:
                 self.state = decision.rsplit(":")[0]
