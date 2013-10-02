@@ -228,6 +228,7 @@ class Consensus():
     def propose(self,u):
         p = u
         while True:
+            return u
             d = self.d.read()['d']
             if d != None:
                 # print "CONS (early) "+str(d)
