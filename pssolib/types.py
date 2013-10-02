@@ -81,8 +81,8 @@ class Splitter():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.x = Register(Config.get().SPLITTERX,{'x':None},key,ts)
-        self.y = Register(Config.get().SPLITTERY,{'y':False},key,ts)
+        self.x = Snapshot(Config.get().SPLITTERX,{'x':None},key,ts)
+        self.y = Snapshot(Config.get().SPLITTERY,{'y':False},key,ts)
         # print "SPLITTER ("+str(ts)+") "+str(key)
 
     def split(self):
@@ -108,8 +108,8 @@ class WeakAdoptCommit():
 
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key,ts)        
-        self.d = Register(Config.get().WACD,{'d':None},key,ts)
-        self.c = Register(Config.get().WACC,{'c':False},key,ts)
+        self.d = Snapshot(Config.get().WACD,{'d':None},key,ts)
+        self.c = Snapshot(Config.get().WACC,{'c':False},key,ts)
         print "WAC ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
@@ -233,7 +233,7 @@ class Consensus():
 
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
-        self.d = Register(Config.get().CONSENSUS,{'d':None},key,ts)
+        self.d = Snapshot(Config.get().CONSENSUS,{'d':None},key,ts)
         self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
         # print "CONS "+"("+str(ts)+") "+str(key)
 
