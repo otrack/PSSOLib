@@ -30,9 +30,10 @@ class Register():
         rval = dict()
         try:
             val = self.columnFamily.get(self.key)
-            if int(val.rsplit(":")[1]) >= self.ts:
-                rval[k] = val.rsplit(":")[0]
-                return rval
+            for (k,v) in val.iteritems():
+                if int(v.rsplit(":")[1]) >= self.ts:
+                    rval[k] = v.rsplit(":")[0]
+                    return rval
         except NotFoundException:
             pass
         # FIXME clone this ? 
