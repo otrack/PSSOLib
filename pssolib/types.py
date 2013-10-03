@@ -242,7 +242,7 @@ class Consensus():
                 return p
 
             if  self.decision() != None:
-                return self.decision
+                return self.decision()
 
     def decision(self):
         if self.cd != None:
