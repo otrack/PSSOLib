@@ -220,7 +220,7 @@ class BoundedRacing(Racing):
 # Complex concurrent objects #
 ##############################
 
-# cost = 8 * 4
+# cost = 7 * 4
 class Consensus():
 
     def __init__(self,key,ts=0):
