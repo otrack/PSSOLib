@@ -22,14 +22,14 @@ class Register():
     def write(self,val):
         wval = dict()
         val['ts'] = str(self.ts)
-        print "REGISTER writing "+str(val)
+        # print "REGISTER writing "+str(val)
         self.columnFamily.insert(self.key,val)
         
     def read(self):
         rval = dict()
         try:
             val = self.columnFamily.get(self.key)
-            print "REGISTER reading "+str(val)
+            # print "REGISTER reading "+str(val)
             if int(val['ts']) >= self.ts:
                 del val['ts']
                 return val
@@ -84,8 +84,8 @@ class Splitter():
     def split(self):
 
         # FIXME useful ? 
-        # if self.x.read()['x'] != None:
-        #     return False
+        if self.x.read()['x'] != None:
+            return False
 
         self.x.write({'x':self.pid})
 
@@ -226,7 +226,7 @@ class Consensus():
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.d = Register(Config.get().WREGISTER,{'d':None},key,ts)
-        self.R = PseudoRacing(key,"WeakAdoptCommit",ts)
+        self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
         self.cd = None
         # print "CONS "+"("+str(ts)+") "+str(key)
 
