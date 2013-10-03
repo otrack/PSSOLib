@@ -41,9 +41,9 @@ do
     do
 
         # 2.1 - Run an  experiment
-	objectid=`uuidgen`
 	for i in `seq 1 ${nclients}` 
 	do
+	    objectid=`uuidgen`
 	    ./access $1 $2 $3 ${objectid} ${N_IT} ${nap} &> ${EXP_TMP_DIR}/$i &
 	done
 	wait 
