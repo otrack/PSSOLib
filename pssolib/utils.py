@@ -68,7 +68,7 @@ class Config():
                 print "Replication factor = 3"
                 replication_factor = '3'                
 
-            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor})
+            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor},durable_writes=False)
             self.SYSM.create_column_family(self.KEYSPACE, 'register')
             self.SYSM.create_column_family(self.KEYSPACE, 'wregister')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
