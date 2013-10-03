@@ -24,8 +24,8 @@ fi
 
 # 2 - Launch experiments
 
-client_min=100
-client_max=100
+client_min=10
+client_max=10
 client_incr=50
 
 nap_min=0
@@ -40,10 +40,10 @@ do
     for nap in ${napseq}
     do
 
+	objectid=`uuidgen`
         # 2.1 - Run an  experiment
 	for i in `seq 1 ${nclients}` 
 	do
-	    objectid=`uuidgen`
 	    ./access $1 $2 $3 ${objectid} ${N_IT} ${nap} &> ${EXP_TMP_DIR}/$i &
 	done
 	wait 
@@ -82,13 +82,13 @@ do
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 
-	# ./isLinearizable
-	# isLinearizable=$?	
-	# if [[ ${isLinearizable} -eq 1 ]]
-	# then
-	#     print "Non-linearizable run; stopping."
-	#     exit -1
-	# fi
+	./isLinearizable
+	isLinearizable=$?	
+	if [[ ${isLinearizable} -eq 1 ]]
+	then
+	    print "Non-linearizable run; stopping."
+	    exit -1
+	fi
 
 	sleep 1
 	
