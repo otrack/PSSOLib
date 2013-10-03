@@ -112,9 +112,7 @@ class WeakAdoptCommit():
 
         if self.splitter.split()==False :
             # print "WAC splitter lost"
-
             time.sleep(0.003)
-
             d = self.d.read()['d'] 
             if d != None:
                 if self.c.read()['c'] == True:
@@ -235,9 +233,6 @@ class Consensus():
     def propose(self,u):
         p = u
         while True:
-            d = self.d.read()['d']
-            if d != None:
-                return d
             r = self.R.enter().adoptCommit(p)
             # print "CONS "+str(r)
             p = r[0]
@@ -246,10 +241,15 @@ class Consensus():
                 self.cd = p
                 return p
 
+            if self.d.read()['d'] != None:
+                return d
+
     def decision(self):
         if self.cd != None:
             return self.cd
-        return self.d.read()['d']
+        if self.d.read()['d'] != None:
+            return d
+        return None
 
 # cost = 9 * 4
 class Cas():
