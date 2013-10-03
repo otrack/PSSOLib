@@ -241,14 +241,15 @@ class Consensus():
                 self.cd = p
                 return p
 
-            if self.d.read()['d'] != None:
-                return d
+            if  self.decision() != None:
+                return self.decision
 
     def decision(self):
         if self.cd != None:
             return self.cd
         d = self.d.read()['d']
         if d != None:
+            cd = d
             return d
         return None
 
