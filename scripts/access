@@ -21,7 +21,7 @@ if len(sys.argv) != 7:
 it=int(sys.argv[5])
 nap=int(sys.argv[6])
 A=1
-B=0
+B=1
     
 #PSSOLib stuff
 
