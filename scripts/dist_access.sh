@@ -24,7 +24,7 @@ fi
 
 # 2 - Launch experiments
 
-client_min=1
+client_min=10
 client_max=10
 client_incr=1
 
@@ -82,13 +82,13 @@ do
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 
-	# ./isLinearizable
-	# isLinearizable=$?	
-	# if [[ ${isLinearizable} -eq 1 ]]
-	# then
-	#     print "Non-linearizable run; stopping."
-	#     exit -1
-	# fi
+	./isLinearizable
+	isLinearizable=$?	
+	if [[ ${isLinearizable} -eq 1 ]]
+	then
+	    print "Non-linearizable run; stopping."
+	    exit -1
+	fi
 
 	sleep 1
 	
