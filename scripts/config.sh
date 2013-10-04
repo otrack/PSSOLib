@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SSHCMD="ssh -o 'StrictHostKeyChecking no'"
+SSHCMD="ssh"
 
 bc=`which bc`
 SCRIPT_DIR=/opt/PSSOLIB/scripts #/home/otrack/ALL/myWork/Implementation/PSSOLib/scripts
