@@ -82,13 +82,13 @@ do
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 
-	./isLinearizable
-	isLinearizable=$?	
-	if [[ ${isLinearizable} -eq 1 ]]
-	then
-	    print "Non-linearizable run; stopping."
-	    exit -1
-	fi
+	# ./isLinearizable
+	# isLinearizable=$?	
+	# if [[ ${isLinearizable} -eq 1 ]]
+	# then
+	#     print "Non-linearizable run; stopping."
+	#     exit -1
+	# fi
 
 	sleep 1
 	
