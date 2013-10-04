@@ -1,11 +1,14 @@
 #!/bin/bash
 
-bc=`which bc`
-EXP_TMP_DIR=/tmp/exp
-N_IT=2000
+source config.sh
 
 function absolute(){
     awk ' { if($1>=0) { print $1} else {print $1*-1 }}'
+}
+
+function stopExp(){
+    killall -SIGTERM access.sh 2&>1 > /dev/null &
+    exit 0
 }
 
 # 0 - Usage 
@@ -22,15 +25,9 @@ then
     mkdir ${EXP_TMP_DIR}
 fi
 
+trap "stopExp; wait; exit 255" SIGINT SIGTERM
+
 # 2 - Launch experiments
-
-client_min=50
-client_max=100
-client_incr=10
-
-nap_min=0
-nap_max=0
-nap_incr=10
 
 for nclients in `seq ${client_min} ${client_incr} ${client_max}`
 do

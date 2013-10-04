@@ -2,7 +2,7 @@
 
 source config.sh
 
-clients=("localhost") # "192.168.79.41" "192.168.79.42" "192.168.79.43")
+clients=("192.168.79.41" "192.168.79.42" "192.168.79.43")
 
 function stopExp(){
 
