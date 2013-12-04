@@ -7,7 +7,7 @@ function absolute(){
 }
 
 function stopExp(){
-    killall -SIGTERM access.sh 2&>1 > /dev/null &
+    killall -SIGTERM access 2&>1 > /dev/null &
     exit 0
 }
 
@@ -50,7 +50,7 @@ do
 	rclients=0
 	for i in `seq 1 ${nclients}` 
 	do
-	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
+	    tmp=`grep PID ${EXP_TMP_DIR}/$i | grep -v pycassa | awk  '{sum+=$2;i++} END{if(sum!=0){print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
 		let rclients++
@@ -66,16 +66,16 @@ do
 	rclients=0
 	for i in `seq 1 ${nclients}` 
 	do
-	    tmp=`grep PID ${EXP_TMP_DIR}/$i | awk  '{sum+=$2;i++} END{if(sum!=0){ print sum/i}}'`
+	    tmp=`grep PID ${EXP_TMP_DIR}/$i | grep -v pycassa | awk  '{sum+=$2;i++} END{if(sum!=0){ print sum/i}}'`
 	    if [ -n "${tmp}" ]
 	    then
 		let rclients++
 		lat=`echo "${tmp}"| sed 's/E/*10^/g'`
-		spread=`echo "scale=2;${lat}-${latency}" | ${bc}`
+		spread=`echo "scale=2;(${lat}-${latency})^2" | ${bc}`
 		tspread=`echo "${tspread}+${spread#-}"`		
 	    fi;
 	done
- 	stddev=`echo "scale=2;(${tspread})/${rclients}" | ${bc}`
+ 	stddev=`echo "scale=2;sqrt((${tspread})/${rclients})" | ${bc}`
 
 	echo -e "${rclients}\t${latency}\t${stddev}\t${nap}"
 
@@ -87,7 +87,7 @@ do
 	#     exit -1
 	# fi
 
-	sleep 1
+	sleep 5
 	
     done
     

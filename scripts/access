@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import uuid, sys, os, random, datetime
+import logging
+logging.basicConfig()
 import ConfigParser
 sys.path.append(os.path.dirname(os.getcwd()))
 from pssolib.types import *
@@ -16,7 +18,6 @@ from kazoo.exceptions import ConnectionLoss
 if len(sys.argv) != 7:
     print "Usage: {0} <P|Z> <spin|cas> <host1:port1>,<host2:port2>,...  <objectid> <#it> <nap>".format(sys.argv[0])
     sys.exit(1)
-
 
 it=int(sys.argv[5])
 nap=int(sys.argv[6])
@@ -34,7 +35,7 @@ def pssolib_measure(obj,it):
         else:
             sleeptime = random.expovariate(1.0/nap)
         time.sleep(sleeptime*0.001)
-        print "Sleeping "+ str(sleeptime)+" ms"
+        # print "Sleeping "+ str(sleeptime)+" ms"
 
         if obj == 'spin':
             executetime = timeit.timeit(spin_pssolib_access,number=1)*1000
@@ -121,11 +122,10 @@ if sys.argv[1]=="P":
     cfg = Config.create(parser,False)
 
     id1=uuid.UUID(sys.argv[4])
-    # spin = Spinlock(id1)
-
-    cas = Cas(id1,str(0))
-    # cons = Consensus(id1)
-
+    if sys.argv[2] == 'spin':
+        spin = Spinlock(id1)
+    else:
+        cas = Cas(id1,str(0))
     pssolib_measure(sys.argv[2],it)
 
 else:

@@ -68,7 +68,7 @@ class Config():
                 print "Replication factor = 3"
                 replication_factor = '3'                
 
-            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor},durable_writes=False)
+            self.SYSM.create_keyspace(self.KEYSPACE, SIMPLE_STRATEGY, {'replication_factor': replication_factor},durable_writes=True)
             self.SYSM.create_column_family(self.KEYSPACE, 'register')
             self.SYSM.create_column_family(self.KEYSPACE, 'wregister')
             self.SYSM.create_column_family(self.KEYSPACE, 'map')
@@ -76,7 +76,6 @@ class Config():
             self.SYSM.create_column_family(self.KEYSPACE, 'splittery')
             self.SYSM.create_column_family(self.KEYSPACE, 'wacc')
             self.SYSM.create_column_family(self.KEYSPACE, 'wacd')
-            self.SYSM.create_column_family(self.KEYSPACE, 'consensus')
 
         self.POOL = ConnectionPool(self.KEYSPACE, server_list=self.SERVERS) 
 
@@ -94,31 +93,24 @@ class Config():
         self.SPLITTERY.column_name_class = AsciiType()
         self.SPLITTERY.column_validators['y'] = BooleanType() # boolean
 
-        self.WACD = ColumnFamily(self.POOL, 'wacd')
-        self.WACD.read_consistency_level = ConsistencyLevel.QUORUM
-        self.WACD.write_consistency_level = ConsistencyLevel.QUORUM
-        self.WACD.key_validation_class = LexicalUUIDType()
-        self.WACD.column_name_class = AsciiType() 
+        self.GrafariusD = ColumnFamily(self.POOL, 'wacd')
+        self.GrafariusD.read_consistency_level = ConsistencyLevel.QUORUM
+        self.GrafariusD.write_consistency_level = ConsistencyLevel.QUORUM
+        self.GrafariusD.key_validation_class = LexicalUUIDType()
+        self.GrafariusD.column_name_class = AsciiType() 
 
-        self.WACC = ColumnFamily(self.POOL, 'wacc')
-        self.WACC.read_consistency_level = ConsistencyLevel.QUORUM
-        self.WACC.write_consistency_level = ConsistencyLevel.QUORUM
-        self.WACC.key_validation_class = LexicalUUIDType()
-        self.WACC.column_name_class = AsciiType() 
-        self.WACC.column_validators['c'] = BooleanType() # Conflict flag
+        self.GrafariusC = ColumnFamily(self.POOL, 'wacc')
+        self.GrafariusC.read_consistency_level = ConsistencyLevel.QUORUM
+        self.GrafariusC.write_consistency_level = ConsistencyLevel.QUORUM
+        self.GrafariusC.key_validation_class = LexicalUUIDType()
+        self.GrafariusC.column_name_class = AsciiType() 
+        self.GrafariusC.column_validators['c'] = BooleanType() # Conflict flag
 
         self.MAP = ColumnFamily(self.POOL, 'map')
         self.MAP.read_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.write_consistency_level = ConsistencyLevel.QUORUM
         self.MAP.key_validation_class = LexicalUUIDType()
         self.MAP.column_name_class = AsciiType()
-
-        self.CONSENSUS = ColumnFamily(self.POOL, 'consensus')
-        self.CONSENSUS.read_consistency_level = ConsistencyLevel.QUORUM
-        self.CONSENSUS.write_consistency_level = ConsistencyLevel.QUORUM
-        self.CONSENSUS.key_validation_class = LexicalUUIDType()
-        self.CONSENSUS.column_name_class = AsciiType() 
-        # CONSENSUS.column_validators['v'] = BytesType() # Consensus value
 
         self.REGISTER = ColumnFamily(self.POOL, 'register',)
         self.REGISTER.read_consistency_level = ConsistencyLevel.QUORUM

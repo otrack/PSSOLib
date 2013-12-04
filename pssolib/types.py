@@ -100,18 +100,18 @@ class Splitter():
         return True
 
 # cost = 6 * 4
-class WeakAdoptCommit():
+class Grafarius():
 
     def __init__(self,key,ts=0):
         self.splitter = Splitter(key,ts)        
-        self.d = Register(Config.get().WACD,{'d':None},key,ts)
-        self.c = Register(Config.get().WACC,{'c':False},key,ts)
-        print "WAC ("+str(ts)+") "+str(key)
+        self.d = Register(Config.get().GrafariusD,{'d':None},key,ts)
+        self.c = Register(Config.get().GrafariusC,{'c':False},key,ts)
+        # print "Grafarius ("+str(ts)+") "+str(key)
 
     def adoptCommit(self,u):
 
         if self.splitter.split()==False :
-            # print "WAC splitter lost"
+            # print "Grafarius splitter lost"
             time.sleep(0.003)
             d = self.d.read()['d'] 
             if d != None:
@@ -123,6 +123,7 @@ class WeakAdoptCommit():
             d = self.d.read()['d']
             if d != None:
                 return (d,'ADOPT')
+            self.d.write({'d':u})
             return (u,'ADOPT')
 
         self.d.write({'d':u})
@@ -151,7 +152,7 @@ class Racing():
         class_ = getattr(module, self.class_name)
         return class_(k,ts)
 
-    # FIXME move this
+    # FIXME make this a static call
     def min(self,snap):
         m = self.current
         for (k,v) in snap.iteritems():
@@ -201,13 +202,11 @@ class BoundedRacing(Racing):
         Racing.__init__(self,key,class_name,ts)
 
     def enter(self,m,rnd):
-        snap = self.snap.read()
         self.current = m
         self.snap.write({str(self.pid):str(self.current)})
         return self.newinstance(random_uuid(str(self.key)+str(self.current)),rnd)
 
     def free(self):
-        m = self.current
         snap = self.snap.read()
         # if smallest > 0 then smallest-1 is free
         smallest = self.min(snap)
@@ -226,7 +225,7 @@ class Consensus():
     def __init__(self,key,ts=0):
         self.pid = get_thread_ident()
         self.d = Register(Config.get().WREGISTER,{'d':None},key,ts)
-        self.R = UnboundedRacing(key,"WeakAdoptCommit",ts)
+        self.R = UnboundedRacing(key,"Grafarius",ts)
         self.cd = None
         # print "CONS "+"("+str(ts)+") "+str(key)
 
@@ -260,30 +259,29 @@ class Cas():
         self.key = key
         self.pid = get_thread_ident()
         self.state = init
-        self.nextRound = 0
-
+        self.nextTS = 0
+        
         self.R = BoundedRacing(key,"Consensus")
         self.nextLap = 0
-        # print "entering (init) "+str(self.nextRound)
+        # print "entering (init) "+str(self.nextTS)
         self.C = self.R.enter(0,0)
 
     def compareandswap(self,u,v):
         while True:
             decision = self.C.decision()
-            print "["+str(decision)+"]"
+            # print "["+str(decision)+"]"
             if decision != None:
                 self.state = decision.rsplit(":")[0]
                 self.nextLap = int(decision.rsplit(":")[2])
-                self.nextRound = int(decision.rsplit(":")[3])
-                # print "CAS "+str(self.nextRound-1)+"["+str(decision)+"]"
-                self.C = self.R.enter(self.nextLap,self.nextRound)
+                self.nextTS = int(decision.rsplit(":")[3])
+                # print "CAS "+str(self.nextTS-1)+"["+str(decision)+"]"
+                self.C = self.R.enter(self.nextLap,self.nextTS)
             else:
                 if self.state != u:
                     return False; 
-                self.nextRound +=1
-                decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free())+":"+str(self.nextRound))
+                decision = self.C.propose(v+":"+str(self.pid)+":"+str(self.R.free())+":"+str(self.nextTS+1))
                 if decision.rsplit(":")[1] == str(self.pid):
-                    print "CAS (True) "+str(self.nextRound-1)+" "+str(u)+" "+str(v)
+                    print "CAS (True) "+str(self.nextTS)+" "+str(u)+" "+str(v)
                     return True                
 
     def get(self):
@@ -293,9 +291,9 @@ class Cas():
                 return self.state
             self.state = decision.rsplit(":")[0]
             self.nextLap = int(decision.rsplit(":")[2])
-            self.nextRound = int(decision.rsplit(":")[3])
-            # print "entering (get) "+str(self.nextRound)
-            self.C = self.R.enter(self.nextLap,self.nextRound)
+            self.nextTS = int(decision.rsplit(":")[3])
+            # print "entering (get) "+str(self.nextTS)
+            self.C = self.R.enter(self.nextLap,self.nextTS)
 
 class Spinlock():
 
@@ -317,10 +315,12 @@ class Spinlock():
             sleeptime = random.expovariate(1.0/mdelay)
             time.sleep(sleeptime*0.001)
             pass
+        print "LOCKED "+str(get_thread_ident())
         mdelay=0
         
     def unlock(self):
          r = self.cas.compareandswap(str(get_thread_ident()),str(0))
+         print "UNLOCKED "+str(get_thread_ident())
          assert r == True
 
 class Stack():

@@ -1,16 +1,23 @@
 #!/bin/sh
 
-SSHCMD="ssh"
-
+SSHSCP="scp -i id_rsa -q"
+SSHCMD="ssh -i id_rsa"
 bc=`which bc`
-SCRIPT_DIR=/opt/PSSOLIB/scripts #/home/otrack/ALL/myWork/Implementation/PSSOLib/scripts
-EXP_TMP_DIR=/tmp/exp
-N_IT=2000
 
-client_min=50
-client_max=100
+SCRIPT_DIR=/opt/PSSOLib/scripts
+PSSOLIB_DIR=/opt/PSSOLib/pssolib
+EXP_TMP_DIR=/tmp/exp
+
+clients=("192.168.79.50") # "192.168.79.51" "192.168.79.52" "192.168.79.53" "192.168.79.54" "192.168.79.55") # "192.168.79.56" "192.168.79.11" "192.168.79.12" "192.168.79.13") # "192.168.79.155" "192.168.79.156" "192.168.79.157" "192.168.79.158" "192.168.79.159")
+zservers=("192.168.79.201,192.168.79.202,192.168.79.203") # ,192.168.79.204,192.168.79.205,192.168.79.206")
+cservers=("192.168.79.66,192.168.79.58,192.168.79.59") #,192.168.79.189,192.168.79.190,192.168.79.191,192.168.79.192,192.168.79.193,192.168.79.194")
+
+N_IT=5000
+
+client_min=1
+client_max=1
 client_incr=10
 
 nap_min=0
 nap_max=0
-nap_incr=10
+nap_incr=1

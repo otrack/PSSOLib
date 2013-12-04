@@ -31,16 +31,16 @@ id2=uuid.uuid4()
 # c = Consensus(id1)
 # print c.propose("bonjour")
 
-cas = Cas(id2,"")
-print cas.compareandswap("","Hello")
-print cas.compareandswap("","Goodbye")
-print cas.compareandswap("Hello","Goodbye")
+# cas = Cas(id2,"")
+# print cas.compareandswap("","Hello")
+# print cas.compareandswap("","Goodbye")
+# print cas.compareandswap("Hello","Goodbye")
 
-# spin = Spinlock(id1)
-# spin.lock()
-# print "LOCKED"
-# spin.unlock()
-# print "UNLOCKED"
+spin = Spinlock(id1)
+spin.lock()
+print "LOCKED"
+spin.unlock()
+print "UNLOCKED"
 
 stack = Stack(id1)
 assert stack.empty() == True
