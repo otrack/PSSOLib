@@ -11,7 +11,10 @@ mapping,
 consensus
 and a few esoteric objects which are necessary to build the above objects.
 
-To sidestep the consensus/CAP impossibility result, all the objects in the library are obstruction-free, that is a call might take a lot of time in case the contention is high. It is nevertheless possible to add some helping mechanisms or to proxy all the accesses through a leader (as in Paxos). 
+To sidestep the consensus/CAP impossibility result, all the objects in the library are obstruction-free, 
+that is a call might take a lot of time in case the contention is high.
+It is nevertheless possible to add some helping mechanisms or to proxy all the accesses
+through a leader (à la Paxos). 
 
-For additional details, a paper is available in bib/paper.pdf.
+For additional details, a paper is available at the following address on arxiv http://arxiv.org/abs/1309.2772.
 
